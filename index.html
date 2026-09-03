@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta id="theme-color" name="theme-color" content="#0F172A">
+    <title>Mi Billetera · Bolivia</title>
+    <style>
+        /* ========== VARIABLES MODO CLARO (default) ========== */
+        :root {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --bg-body: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --bg-card-hover: #F8FAFC;
+            --bg-module: #FFFFFF;
+            --bg-module-hover: #F8FAFC;
+            --bg-input: #F1F5F9;
+            --border: #E2E8F0;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --shadow: 0 18px 35px -12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 25px 45px -15px rgba(0, 0, 0, 0.15);
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --nav-border: rgba(226, 232, 240, 0.8);
+            --transition: all 0.3s ease;
+            --radius: 20px;
+            --radius-sm: 14px;
+            --radius-xs: 10px;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        /* ========== VARIABLES MODO OSCURO ========== */
+        [data-theme="dark"] {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --bg-body: #0F172A;
+            --bg-card: #1E293B;
+            --bg-card-hover: #273449;
+            --bg-module: #1E293B;
+            --bg-module-hover: #273449;
+            --bg-input: #1E293B;
+            --border: #334155;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --shadow: 0 18px 35px -12px rgba(0, 0, 0, 0.7);
+            --shadow-lg: 0 25px 45px -15px rgba(0, 0, 0, 0.8);
+            --nav-bg: rgba(15, 23, 42, 0.95);
+            --nav-border: rgba(51, 65, 85, 0.5);
+        }
+
+        /* ========== ESTILOS BASE ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+        *::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            padding-bottom: 90px;
+            overscroll-behavior: none;
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .wallet-container {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+            overflow: hidden;
+            height: calc(100vh - 110px);
+            max-height: 750px;
+        }
+
+        /* Tarjeta MI BILLETERA */
+        .wallet-card {
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-module) 100%);
+            border-radius: 24px;
+            padding: 28px 22px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .wave-bg {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: radial-gradient(ellipse at top, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+            border-radius: 100% 100% 0 0 / 40% 40% 0 0;
+            pointer-events: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: url('https://picsum.photos/id/64/100/100') center/cover;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-primary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bell-icon {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        /* Botón tema claro/oscuro */
+        .theme-toggle-btn {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+        .theme-toggle-btn:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .balance-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .balance-amount {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+            color: var(--text-primary);
+        }
+
+        .module-window {
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-module) 100%);
+            border-radius: 24px;
+            padding: 20px 18px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .buttons-row {
+            display: flex;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: none;
+        }
+
+        .btn-recharge {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-pay {
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .quick-actions-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            letter-spacing: 0.3px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quick-actions-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .quick-actions-row {
+            display: flex;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 18px;
+        }
+
+        .quick-action-btn {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 12px;
+            transition: none;
+        }
+
+        .quick-action-btn svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--primary);
+            fill: none;
+            stroke-width: 1.8;
+        }
+
+        .transaction-item {
+            background: var(--bg-input);
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            transition: none;
+            margin-bottom: 8px;
+        }
+
+        .transaction-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .transaction-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .transaction-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--primary);
+            fill: none;
+            stroke-width: 1.8;
+        }
+
+        .transaction-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .transaction-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .transaction-date {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .transaction-amount {
+            font-size: 13px;
+            font-weight: 700;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .transaction-amount.positive { color: var(--success); }
+        .transaction-amount.negative { color: var(--danger); }
+
+        .profile-section {
+            text-align: center;
+            padding: 8px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-avatar-lg {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: url('https://picsum.photos/id/64/200/200') center/cover;
+            border: 3px solid var(--primary);
+            margin: 0 auto 14px;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 3px;
+            color: var(--text-primary);
+        }
+
+        .profile-email {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: var(--bg-input);
+            border-radius: 14px;
+            padding: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 3px;
+        }
+
+        /* Sistema de pestañas */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        #tab-inicio.active {
+            overflow: hidden !important;
+            max-height: none !important;
+        }
+
+        /* Historial rígido */
+        #tab-historial.active {
+            overflow-y: auto !important;
+            height: 100%;
+            flex: 1;
+            min-height: 0;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+            background: transparent;
+            gap: 0;
+        }
+
+        #tab-historial.active::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        .historial-rigid {
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-module) 100%);
+            border-radius: 24px 24px 0 0;
+            padding: 20px 18px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .historial-header {
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+
+        .historial-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.3px;
+        }
+
+        .historial-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-top: 16px;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+        }
+
+        .historial-list::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Barra de navegación flotante */
+        .floating-nav {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 380px;
+            background: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 22px;
+            padding: 10px 8px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            border: 1px solid var(--nav-border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .floating-nav .nav-item {
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 14px;
+            border-radius: 14px;
+            transition: none;
+            position: relative;
+            min-width: 55px;
+            background: none;
+            border: none;
+        }
+
+        .floating-nav .nav-item svg {
+            width: 22px;
+            height: 22px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .floating-nav .nav-item.active {
+            color: var(--primary);
+            background: rgba(59, 130, 246, 0.12);
+        }
+
+        .floating-nav .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px;
+            height: 3px;
+            border-radius: 2px;
+            background: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+                padding-bottom: 85px;
+            }
+            .wallet-container {
+                gap: 14px;
+                height: calc(100vh - 100px);
+            }
+            .wallet-card {
+                padding: 22px 18px;
+                border-radius: 20px;
+            }
+            .module-window {
+                padding: 16px 14px;
+                border-radius: 20px;
+            }
+            .balance-amount {
+                font-size: 26px;
+            }
+            .btn {
+                padding: 11px;
+                font-size: 13px;
+            }
+            .quick-action-btn {
+                padding: 12px 5px;
+                font-size: 11px;
+            }
+            .quick-action-btn svg {
+                width: 24px;
+                height: 24px;
+            }
+            .floating-nav {
+                bottom: 10px;
+                width: calc(100% - 24px);
+                padding: 8px 6px;
+                border-radius: 18px;
+            }
+            .floating-nav .nav-item {
+                padding: 6px 10px;
+                min-width: 45px;
+            }
+            .floating-nav .nav-item svg {
+                width: 20px;
+                height: 20px;
+            }
+            .historial-rigid {
+                border-radius: 20px 20px 0 0;
+                padding: 16px 14px 16px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .buttons-row {
+                gap: 8px;
+            }
+            .quick-actions-row {
+                gap: 8px;
+            }
+            .floating-nav .nav-item {
+                padding: 5px 6px;
+                min-width: 40px;
+            }
+            .floating-nav .nav-item svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="wallet-container">
+        <!-- PESTAÑA INICIO -->
+        <div class="tab-content active" id="tab-inicio">
+            <div class="wallet-card">
+                <div class="wave-bg"></div>
+                <div class="header">
+                    <div class="profile-img" onclick="alert('Perfil')"></div>
+                    <h1 class="header-title">MI BILLETERA</h1>
+                    <div class="header-actions">
+                        <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+                            <svg id="theme-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="5"/>
+                                <line x1="12" y1="1" x2="12" y2="3"/>
+                                <line x1="12" y1="21" x2="12" y2="23"/>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                                <line x1="1" y1="12" x2="3" y2="12"/>
+                                <line x1="21" y1="12" x2="23" y2="12"/>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                            </svg>
+                        </button>
+                        <span class="bell-icon" onclick="alert('Notificaciones')">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+                <p class="balance-label">Saldo disponible</p>
+                <p class="balance-amount">Bs 18.420,81</p>
+            </div>
+
+            <div class="module-window">
+                <div class="buttons-row">
+                    <button class="btn btn-recharge" onclick="alert('Recargar saldo')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/>
+                        </svg>
+                        Recargar
+                    </button>
+                    <button class="btn btn-pay" onclick="alert('Realizar pago')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                        Pagar
+                    </button>
+                </div>
+            </div>
+
+            <div class="module-window">
+                <h2 class="quick-actions-title">Acciones rápidas</h2>
+                <div class="quick-actions-row">
+                    <div class="quick-action-btn" onclick="alert('Recargar Tigo')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"/>
+                            <path d="M12 7v5l3 3"/>
+                        </svg>
+                        <span>Tigo</span>
+                    </div>
+                    <div class="quick-action-btn" onclick="alert('Recargar Viva')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5v14"/>
+                            <circle cx="12" cy="12" r="9"/>
+                        </svg>
+                        <span>Viva</span>
+                    </div>
+                    <div class="quick-action-btn" onclick="alert('Recargar Entel')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="6" width="18" height="12" rx="2" ry="2"/>
+                            <path d="M3 10h18"/>
+                            <circle cx="8" cy="14" r="1.5"/>
+                        </svg>
+                        <span>Entel</span>
+                    </div>
+                </div>
+
+                <h2 class="quick-actions-title">Transacciones recientes</h2>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/>
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Recarga Tigo</div>
+                            <div class="transaction-date">Hoy, 14:32</div>
+                        </div>
+                        <div class="transaction-amount negative">-Bs 50.00</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Transferencia recibida</div>
+                            <div class="transaction-date">Ayer, 18:20</div>
+                        </div>
+                        <div class="transaction-amount positive">+Bs 250.00</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="6" width="18" height="12" rx="2" ry="2"/>
+                                <path d="M3 10h18"/>
+                                <circle cx="8" cy="14" r="1.5"/>
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Recarga Entel</div>
+                            <div class="transaction-date">12 Ago, 09:15</div>
+                        </div>
+                        <div class="transaction-amount negative">-Bs 100.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA HISTORIAL -->
+        <div class="tab-content" id="tab-historial">
+            <div class="historial-rigid">
+                <div class="historial-header">
+                    <h2>Todas las transacciones</h2>
+                </div>
+                <div class="historial-list">
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/>
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Recarga Tigo</div>
+                            <div class="transaction-date">Hoy, 14:32</div>
+                        </div>
+                        <div class="transaction-amount negative">-Bs 50.00</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Transferencia recibida</div>
+                            <div class="transaction-date">Ayer, 18:20</div>
+                        </div>
+                        <div class="transaction-amount positive">+Bs 250.00</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="6" width="18" height="12" rx="2" ry="2"/>
+                                <path d="M3 10h18"/>
+                                <circle cx="8" cy="14" r="1.5"/>
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Recarga Entel</div>
+                            <div class="transaction-date">12 Ago, 09:15</div>
+                        </div>
+                        <div class="transaction-amount negative">-Bs 100.00</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 18 15 12 9 6"/>
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Pago de servicios</div>
+                            <div class="transaction-date">10 Ago, 11:45</div>
+                        </div>
+                        <div class="transaction-amount negative">-Bs 180.50</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/>
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Recarga Viva</div>
+                            <div class="transaction-date">08 Ago, 16:40</div>
+                        </div>
+                        <div class="transaction-amount negative">-Bs 30.00</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Transferencia enviada</div>
+                            <div class="transaction-date">05 Ago, 10:20</div>
+                        </div>
+                        <div class="transaction-amount negative">-Bs 150.00</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="6" width="18" height="12" rx="2" ry="2"/>
+                                <path d="M3 10h18"/>
+                                <circle cx="8" cy="14" r="1.5"/>
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Recarga Tigo</div>
+                            <div class="transaction-date">02 Ago, 13:10</div>
+                        </div>
+                        <div class="transaction-amount negative">-Bs 20.00</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/>
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-title">Recarga Entel</div>
+                            <div class="transaction-date">28 Jul, 17:55</div>
+                        </div>
+                        <div class="transaction-amount negative">-Bs 50.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PESTAÑA PERFIL -->
+        <div class="tab-content" id="tab-perfil">
+            <div class="module-window">
+                <div class="profile-section">
+                    <div class="profile-avatar-lg"></div>
+                    <div class="profile-name">Aravind S.</div>
+                    <div class="profile-email">aravind@email.com</div>
+
+                    <div class="profile-stats">
+                        <div class="stat-card">
+                            <div class="stat-value">24</div>
+                            <div class="stat-label">Recargas</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">Bs 1,280</div>
+                            <div class="stat-label">Total movido</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">4.9★</div>
+                            <div class="stat-label">Rating</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 8px;">
+                        <button style="padding: 13px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-primary); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; transition: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                            </svg>
+                            Configuración
+                        </button>
+                        <button style="padding: 13px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text-primary); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; transition: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10z"/>
+                            </svg>
+                            Seguridad
+                        </button>
+                        <button style="padding: 13px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-input); color: var(--danger); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; transition: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 17l5-5-5-5M21 12H9"/>
+                                <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7"/>
+                            </svg>
+                            Cerrar sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de navegación flotante -->
+    <nav class="floating-nav" id="floatingNav">
+        <button class="nav-item active" data-tab="tab-inicio" onclick="switchTab('tab-inicio', this)" title="Inicio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+        </button>
+        <button class="nav-item" data-tab="tab-historial" onclick="switchTab('tab-historial', this)" title="Historial">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+            </svg>
+        </button>
+        <button class="nav-item" data-tab="tab-perfil" onclick="switchTab('tab-perfil', this)" title="Perfil">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+        </button>
+    </nav>
+
+    <script>
+        // ========== FUNCIONES DE TEMA ==========
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            
+            // Actualizar meta theme-color
+            const metaThemeColor = document.getElementById('theme-color');
+            if (theme === 'dark') {
+                metaThemeColor.setAttribute('content', '#0F172A');
+            } else {
+                metaThemeColor.setAttribute('content', '#F1F5F9');
+            }
+            
+            // Actualizar icono del botón
+            const themeIcon = document.getElementById('theme-icon');
+            if (themeIcon) {
+                if (theme === 'dark') {
+                    themeIcon.innerHTML = `
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    `;
+                } else {
+                    themeIcon.innerHTML = `
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    `;
+                }
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        // ========== NAVEGACIÓN ==========
+        function switchTab(tabId, btnElement) {
+            const allTabs = document.querySelectorAll('.tab-content');
+            allTabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+
+            const allNavItems = document.querySelectorAll('.floating-nav .nav-item');
+            allNavItems.forEach(item => {
+                item.classList.remove('active');
+            });
+
+            if (btnElement) {
+                btnElement.classList.add('active');
+            }
+
+            if (tabId === 'tab-inicio') {
+                selectedTab.scrollTop = 0;
+                document.body.style.overflow = 'hidden';
+            } else if (tabId === 'tab-historial') {
+                const list = selectedTab.querySelector('.historial-list');
+                if (list) list.scrollTop = 0;
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // ========== INICIALIZACIÓN ==========
+        (function init() {
+            // Cargar tema guardado
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+
+            // Prevenir scroll en body
+            document.body.addEventListener('touchmove', function(e) {
+                if (e.target.closest('#tab-historial') || e.target.closest('#tab-perfil')) {
+                    return;
+                }
+                e.preventDefault();
+            }, { passive: false });
+
+            document.getElementById('tab-inicio').addEventListener('wheel', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+
+            // Event listeners para botones
+            document.querySelectorAll('.btn-recharge, .btn-pay').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const action = this.classList.contains('btn-recharge') ? 'Recargar saldo' : 'Realizar pago';
+                    alert(action);
+                });
+            });
+
+            document.querySelectorAll('.quick-action-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const operator = this.querySelector('span')?.textContent || 'Acción';
+                    alert(`Recargar ${operator}`);
+                });
+            });
+
+            document.querySelectorAll('.bell-icon').forEach(bell => {
+                bell.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    alert('Notificaciones');
+                });
+            });
+
+            document.querySelectorAll('.transaction-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const title = this.querySelector('.transaction-title')?.textContent || 'Transacción';
+                    alert(`Detalle de: ${title}`);
+                });
+            });
+        })();
+
+        console.log('✅ Tema claro/oscuro activo · Sin efectos en botones · Historial rígido');
+    </script>
+</body>
+</html>
