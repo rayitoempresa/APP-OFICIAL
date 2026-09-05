@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
-  --primary:#000000;
+  --primary:#17212A;
   --primary-light:#2A2A2A;
   --bg-body:#FAFAFA;
   --bg-card:#FFFFFF;
@@ -23,7 +23,7 @@
   --shadow-sm:0 2px 4px rgba(0,0,0,.06);
   --shadow-md:0 4px 12px rgba(0,0,0,.08);
   --shadow-lg:0 8px 24px rgba(0,0,0,.12);
-  --card-bg:linear-gradient(135deg, #000000 0%, #1A1A1A 25%, #333333 50%, #4A4A4A 75%, #666666 100%);
+  --card-bg:linear-gradient(90deg, #17212A 0%, #1C2731 28%, #303C48 55%, #414D59 78%, #2D3945 100%);
   --card-text:#FFFFFF;
   --radius:12px;
   --radius-sm:8px;
@@ -53,12 +53,12 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
 .avatar-wrap:hover{transform:scale(1.1) rotate(5deg);}
 .avatar-wrap:active{transform:scale(.95);}
-.profile-img{width:40px;height:40px;border-radius:50%;background:#000;
+.profile-img{width:40px;height:40px;border-radius:50%;background:var(--primary);
   background-image:url('https://picsum.photos/id/64/100/100');background-size:cover;background-position:center;
-  border:2px solid #000;box-shadow:0 2px 8px rgba(0,0,0,.15);
+  border:2px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.15);
   transition:box-shadow .3s cubic-bezier(.4,0,.2,1);}
 .avatar-cam-dot{position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;
-  background:#000;border:2px solid #fff;display:flex;align-items:center;justify-content:center;
+  background:var(--primary);border:2px solid #fff;display:flex;align-items:center;justify-content:center;
   box-shadow:0 2px 4px rgba(0,0,0,.2);
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
 .avatar-wrap:hover .avatar-cam-dot{transform:scale(1.2);}
@@ -147,7 +147,12 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   opacity:0;}
 .btn:active{transform:scale(.95);}
 .btn-recharge{
-  background:linear-gradient(135deg, #2A2A2A 0%, #000000 100%);
+  background:linear-gradient(
+    90deg,
+    rgba(10, 20, 28, 0.95),
+    rgba(45, 59, 72, 0.88),
+    rgba(65, 77, 89, 0.80)
+  );
   color:#fff;
   box-shadow:0 4px 12px rgba(0,0,0,.25);
   position:relative;
@@ -155,14 +160,18 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 .btn-recharge:hover{box-shadow:0 8px 20px rgba(0,0,0,.3);transform:translateY(-2px);}
 .btn-recharge:active{box-shadow:0 2px 6px rgba(0,0,0,.2);}
 .btn-pay{
-  background:#fff;
-  color:#000;
-  border:2px solid #000;
+  background:linear-gradient(
+    90deg,
+    rgba(10, 20, 28, 0.95),
+    rgba(45, 59, 72, 0.88),
+    rgba(65, 77, 89, 0.80)
+  );
+  color:#fff;
   box-shadow:0 2px 8px rgba(0,0,0,.1);
   position:relative;
   overflow:hidden;}
 .btn-pay:hover{box-shadow:0 6px 16px rgba(0,0,0,.15);transform:translateY(-2px);}
-.btn-pay:active{background:#F5F5F5;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.btn-pay:active{box-shadow:0 1px 4px rgba(0,0,0,.08);}
 
 .section-title{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:10px;
   display:flex;align-items:center;gap:8px;letter-spacing:-0.2px;}
@@ -230,13 +239,13 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
 .avatar-lg-wrap:hover{transform:scale(1.1) rotate(-5deg);}
 .avatar-lg-wrap:active{transform:scale(.95);}
-.profile-avatar-lg{width:72px;height:72px;border-radius:50%;background:#000;
+.profile-avatar-lg{width:72px;height:72px;border-radius:50%;background:var(--primary);
   background-image:url('https://picsum.photos/id/64/200/200');background-size:cover;background-position:center;
   border:3px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,.2);
   transition:box-shadow .3s ease;}
 .avatar-lg-wrap:hover .profile-avatar-lg{box-shadow:0 8px 24px rgba(0,0,0,.3);}
 .avatar-cam-badge{position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;
-  background:#000;border:2px solid #fff;display:flex;align-items:center;justify-content:center;
+  background:var(--primary);border:2px solid #fff;display:flex;align-items:center;justify-content:center;
   box-shadow:0 2px 8px rgba(0,0,0,.2);
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
 .avatar-lg-wrap:hover .avatar-cam-badge{transform:scale(1.2) rotate(10deg);}
@@ -251,7 +260,7 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   transform:translateZ(0);
   backface-visibility:hidden;}
 .stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px) scale(1.05);}
-.stat-value{font-size:14px;font-weight:800;color:#000;letter-spacing:-0.3px;
+.stat-value{font-size:14px;font-weight:800;color:var(--primary);letter-spacing:-0.3px;
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
 .stat-card:hover .stat-value{transform:scale(1.1);}
 .stat-label{font-size:8px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;font-weight:600;}
@@ -326,17 +335,17 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   left:50%;
   width:0;
   height:2px;
-  background:#000000;
+  background:#17212A;
   border-radius:2px;
   transform:translateX(-50%);
   transition:width .3s cubic-bezier(.34,1.56,.64,1);}
-.floating-nav .nav-item:hover{color:#000000;transform:translateY(-2px);}
+.floating-nav .nav-item:hover{color:#17212A;transform:translateY(-2px);}
 .floating-nav .nav-item:hover::before{width:60%;}
 .floating-nav .nav-item:active{transform:scale(.9);}
 .floating-nav .nav-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;
   transition:all .3s cubic-bezier(.34,1.56,.64,1);}
 .floating-nav .nav-item:hover svg{transform:scale(1.2) rotate(5deg);}
-.floating-nav .nav-item.active{color:#000000;
+.floating-nav .nav-item.active{color:#17212A;
   background:#F5F5F5;
   box-shadow:inset 0 2px 4px rgba(0,0,0,.08);}
 .floating-nav .nav-item.active::before{width:60%;}
@@ -469,7 +478,7 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
       <div class="buttons-row">
         <button class="btn btn-recharge" onclick="alert('Recargar saldo')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-          + Saldo
+          Saldo
         </button>
         <button class="btn btn-pay" onclick="alert('Realizar transferencia')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
@@ -483,19 +492,19 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
       <div class="quick-actions-row">
         <div class="quick-action-btn" onclick="alert('Recargar Tigo')">
           <div class="qa-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#17212A"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
           </div>
           <span>Tigo</span>
         </div>
         <div class="quick-action-btn" onclick="alert('Recargar Viva')">
           <div class="qa-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000"><path d="M5 12h14M12 5v14"/><circle cx="12" cy="12" r="9"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#17212A"><path d="M5 12h14M12 5v14"/><circle cx="12" cy="12" r="9"/></svg>
           </div>
           <span>Viva</span>
         </div>
         <div class="quick-action-btn" onclick="alert('Recargar Entel')">
           <div class="qa-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#000"><rect x="3" y="6" width="18" height="12" rx="2" ry="2"/><path d="M3 10h18"/><circle cx="8" cy="14" r="1.5"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#17212A"><rect x="3" y="6" width="18" height="12" rx="2" ry="2"/><path d="M3 10h18"/><circle cx="8" cy="14" r="1.5"/></svg>
           </div>
           <span>Entel</span>
         </div>
