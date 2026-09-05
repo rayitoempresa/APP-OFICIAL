@@ -194,8 +194,10 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 .quick-action-btn:active{transform:translateY(0) scale(.95);box-shadow:var(--shadow-sm);}
 .qa-icon{width:28px;height:28px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;
   background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.1);
-  transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  overflow:hidden;}
 .quick-action-btn:hover .qa-icon{transform:rotate(15deg) scale(1.1);}
+.qa-icon img{width:100%;height:100%;object-fit:cover;border-radius:var(--radius-sm);}
 .qa-icon svg{width:15px;height:15px;stroke-width:2;}
 
 /* ---------- TRANSACTIONS ---------- */
@@ -720,26 +722,9 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
     </div>
 
     <div class="module-window">
-      <h2 class="section-title">Acciones rápidas</h2>
-      <div class="quick-actions-row">
-        <div class="quick-action-btn" onclick="alert('Recargar Tigo')">
-          <div class="qa-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#17212A"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-          </div>
-          <span>Tigo</span>
-        </div>
-        <div class="quick-action-btn" onclick="alert('Recargar Viva')">
-          <div class="qa-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#17212A"><path d="M5 12h14M12 5v14"/><circle cx="12" cy="12" r="9"/></svg>
-          </div>
-          <span>Viva</span>
-        </div>
-        <div class="quick-action-btn" onclick="alert('Recargar Entel')">
-          <div class="qa-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#17212A"><rect x="3" y="6" width="18" height="12" rx="2" ry="2"/><path d="M3 10h18"/><circle cx="8" cy="14" r="1.5"/></svg>
-          </div>
-          <span>Entel</span>
-        </div>
+      <h2 class="section-title">Recargas Móviles</h2>
+      <div class="quick-actions-row" id="operatorsContainer">
+        <!-- Las operadoras se cargarán dinámicamente desde la base de datos -->
       </div>
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -862,6 +847,20 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   </div>
 </div>
 
+<!-- Bottom Sheet de Recarga de Operadora -->
+<div class="sheet-overlay" id="operatorRechargeSheet">
+  <div class="sheet-content">
+    <div class="sheet-grabber"></div>
+    <div class="sheet-header">
+      <div class="sheet-title" id="operatorRechargeTitle">Recarga Móvil</div>
+      <button class="sheet-close" onclick="closeSheet('operatorRechargeSheet')">✕</button>
+    </div>
+    <div class="sheet-body" id="operatorRechargeBody">
+      <!-- Contenido dinámico de recarga -->
+    </div>
+  </div>
+</div>
+
 <nav class="floating-nav" id="floatingNav">
   <button class="nav-item active" data-tab="tab-inicio" onclick="switchTab('tab-inicio', this)" title="Inicio">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -889,6 +888,27 @@ let currentUser = null;
 let userProfile = null;
 let currentBalance = 0;
 let allTransactions = [];
+let operators = [];
+let rechargeTypes = [];
+let packages = [];
+let selectedOperator = null;
+let selectedType = null;
+let selectedPackage = null;
+let isRecargaPaso = false;
+let rechargeStep = 1;
+
+// ============ CONFIGURACIÓN TELEGRAM ============
+const TELEGRAM_BOTS = {
+  entel: { packages: [{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003945260589' },{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003821266965' }], paso: { token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003777784383' } },
+  tigo: { packages: [{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003895996189' },{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003713277631' }], paso: { token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003916080020' } },
+  viva: { packages: [{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003760488575' },{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003331710456' }], paso: { token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003982922759' } }
+};
+
+const OPERATOR_IMAGES = {
+  entel: 'https://mir-s3-cdn-cf.behance.net/project_modules/1400/591606143398369.627a1936bea3a.png',
+  tigo: 'https://dplnews.com/wp-content/uploads/2020/06/dplnews_tigo_mc090620.jpg',
+  viva: 'https://cdn.bitrefill.com/primg/i1w800h800/viva-bolivia.webp'
+};
 
 const ICONS = {
   recarga: `<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/>`,
@@ -961,6 +981,520 @@ function openTransferSheet() {
   document.getElementById('transferAmount').value = '';
   document.getElementById('transferDescription').value = '';
   openSheet('transferSheet');
+}
+
+// ============ CARGA DE OPERADORAS DESDE BD ============
+async function loadOperators() {
+  try {
+    const { data, error } = await window.supabase
+      .from('mobile_operators')
+      .select('*')
+      .eq('is_active', true)
+      .order('display_order');
+    
+    if (error) throw error;
+    
+    operators = data || [];
+    renderOperators();
+  } catch (error) {
+    console.error('Error cargando operadoras:', error);
+  }
+}
+
+function renderOperators() {
+  const container = document.getElementById('operatorsContainer');
+  
+  if (operators.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:15px;color:var(--text-muted);font-size:11px;">No hay operadoras disponibles</div>';
+    return;
+  }
+  
+  container.innerHTML = operators.map(op => {
+    const imgUrl = OPERATOR_IMAGES[op.code?.toLowerCase()] || '';
+    return `
+      <div class="quick-action-btn" onclick="openOperatorRecharge('${op.id}')">
+        <div class="qa-icon">
+          ${imgUrl ? `<img src="${imgUrl}" alt="${op.name}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='<svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'#17212A\\'><circle cx=\\'12\\' cy=\\'12\\' r=\\'9\\'/></svg>'">` : '<svg viewBox="0 0 24 24" fill="none" stroke="#17212A"><circle cx="12" cy="12" r="9"/></svg>'}
+        </div>
+        <span>${op.name}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============ RECARGA DE OPERADORA ============
+async function openOperatorRecharge(operatorId) {
+  selectedOperator = operators.find(op => op.id === operatorId);
+  selectedType = null;
+  selectedPackage = null;
+  rechargeStep = 1;
+  
+  if (!selectedOperator) return;
+  
+  document.getElementById('operatorRechargeTitle').textContent = `Recarga ${selectedOperator.name}`;
+  
+  // Cargar tipos de recarga desde BD
+  await loadRechargeTypes(operatorId);
+  
+  renderOperatorRecharge();
+  openSheet('operatorRechargeSheet');
+}
+
+async function loadRechargeTypes(operatorId) {
+  try {
+    const { data, error } = await window.supabase
+      .from('recharge_types')
+      .select('*')
+      .eq('operator_id', operatorId)
+      .eq('is_active', true)
+      .order('display_order');
+    
+    if (error) throw error;
+    
+    const pasoType = { id: 'recarga-paso', name: '⚡ Recarga al paso', is_permanent: true };
+    rechargeTypes = [...(data || []), pasoType];
+  } catch (error) {
+    console.error('Error cargando tipos de recarga:', error);
+    rechargeTypes = [{ id: 'recarga-paso', name: '⚡ Recarga al paso', is_permanent: true }];
+  }
+}
+
+async function loadPackages(operatorId, typeId) {
+  try {
+    const { data, error } = await window.supabase
+      .from('mobile_packages')
+      .select('*')
+      .eq('operator_id', operatorId)
+      .eq('recharge_type_id', typeId)
+      .eq('is_active', true)
+      .order('amount');
+    
+    if (error) throw error;
+    
+    packages = data || [];
+  } catch (error) {
+    console.error('Error cargando paquetes:', error);
+    packages = [];
+  }
+}
+
+function renderOperatorRecharge() {
+  const body = document.getElementById('operatorRechargeBody');
+  
+  if (rechargeStep === 1) {
+    // Mostrar tipos de recarga
+    body.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Selecciona el tipo de recarga</label>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${rechargeTypes.map(type => `
+            <div style="background:var(--bg-input);border:1.5px solid ${selectedType?.id === type.id ? '#17212A' : 'var(--border)'};border-radius:8px;padding:14px;cursor:pointer;transition:all .3s ease;" 
+                 onclick="selectRechargeType('${type.id}')">
+              <div style="font-weight:700;font-size:13px;">${type.name}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } else if (rechargeStep === 2 && selectedType?.id === 'recarga-paso') {
+    // Recarga al paso
+    body.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Número de teléfono</label>
+        <input type="tel" id="operatorPhone" class="form-input" placeholder="Ej: 77712345" maxlength="8" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Monto a recargar (Bs)</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${[10, 20, 30, 50, 100].map(monto => `
+            <button onclick="selectPasoMonto(${monto})" id="monto-${monto}" style="flex:1;min-width:60px;padding:10px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg-input);cursor:pointer;font-weight:700;font-size:12px;transition:all .3s ease;">
+              Bs ${monto}
+            </button>
+          `).join('')}
+        </div>
+        <input type="number" id="customMonto" class="form-input" placeholder="Otro monto (mínimo Bs 5)" min="5" style="margin-top:8px;">
+      </div>
+      <div id="pasoResumen" style="display:none;">
+        <div style="background:var(--bg-input);border-radius:8px;padding:12px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:11px;color:var(--text-muted);">Crédito a recibir:</span>
+            <span style="font-weight:700;font-size:11px;" id="pasoCredito">Bs 0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:11px;color:var(--text-muted);">Descuento:</span>
+            <span style="font-weight:700;font-size:11px;color:var(--success);" id="pasoDescuento">0%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="font-size:11px;color:var(--text-muted);">Total a pagar:</span>
+            <span style="font-weight:800;font-size:14px;" id="pasoTotal">Bs 0</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn-modal" onclick="confirmPasoRecharge()">
+        <span class="btn-text">Continuar</span>
+        <div class="spinner"></div>
+      </button>
+    `;
+  } else if (rechargeStep === 2) {
+    // Mostrar paquetes
+    body.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Selecciona un paquete</label>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${packages.map(pkg => {
+            const features = [];
+            if(pkg.data_mb) features.push(`📱 ${pkg.data_mb} MB`);
+            if(pkg.minutes) features.push(`📞 ${pkg.minutes} min`);
+            if(pkg.sms) features.push(`✉️ ${pkg.sms} SMS`);
+            if(pkg.duration_days) features.push(`⏱️ ${pkg.duration_days} días`);
+            
+            return `
+              <div style="background:var(--bg-input);border:1.5px solid ${selectedPackage?.id === pkg.id ? '#17212A' : 'var(--border)'};border-radius:8px;padding:12px;cursor:pointer;transition:all .3s ease;" 
+                   onclick="selectPackage('${pkg.id}')">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div>
+                    <div style="font-weight:700;font-size:13px;">${pkg.name}</div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">
+                      ${features.join(' · ')}
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-weight:800;font-size:16px;">${formatCurrency(pkg.price)}</div>
+                    <div style="font-size:9px;color:var(--text-muted);text-decoration:line-through;">${formatCurrency(pkg.amount)}</div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+      <button class="btn-modal" onclick="goToPhoneStep()" ${!selectedPackage ? 'disabled' : ''}>
+        <span class="btn-text">Continuar</span>
+        <div class="spinner"></div>
+      </button>
+    `;
+  } else if (rechargeStep === 3) {
+    // Pedir número de teléfono
+    body.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Paquete seleccionado</label>
+        <div style="background:var(--bg-input);border-radius:8px;padding:12px;">
+          <div style="font-weight:700;font-size:13px;">${selectedPackage.name}</div>
+          <div style="font-weight:800;font-size:16px;margin-top:6px;">${formatCurrency(selectedPackage.price)}</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Número de teléfono</label>
+        <input type="tel" id="operatorPhone" class="form-input" placeholder="Ej: 77712345" maxlength="8" inputmode="numeric">
+      </div>
+      <button class="btn-modal" onclick="goToConfirmStep()">
+        <span class="btn-text">Continuar</span>
+        <div class="spinner"></div>
+      </button>
+    `;
+  } else if (rechargeStep === 4) {
+    // Confirmación
+    const phone = document.getElementById('operatorPhone')?.value || '';
+    body.innerHTML = `
+      <div class="form-group">
+        <label class="form-label">Confirmar recarga</label>
+        <div style="background:var(--bg-input);border-radius:8px;padding:16px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <span style="color:var(--text-muted);font-size:11px;">Operadora:</span>
+            <span style="font-weight:700;font-size:11px;">${selectedOperator.name}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <span style="color:var(--text-muted);font-size:11px;">Paquete:</span>
+            <span style="font-weight:700;font-size:11px;">${selectedPackage.name}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <span style="color:var(--text-muted);font-size:11px;">Número:</span>
+            <span style="font-weight:700;font-size:11px;">+591 ${phone}</span>
+          </div>
+          <div style="border-top:1px solid var(--border-dark);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;">
+            <span style="font-weight:700;font-size:13px;">Total:</span>
+            <span style="font-weight:800;font-size:16px;">${formatCurrency(selectedPackage.price)}</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn-modal" id="operatorRechargeSubmit" onclick="processOperatorRecharge()">
+        <span class="btn-text">Confirmar recarga</span>
+        <div class="spinner"></div>
+      </button>
+    `;
+  }
+}
+
+function selectRechargeType(typeId) {
+  selectedType = rechargeTypes.find(t => t.id === typeId);
+  selectedPackage = null;
+  
+  if (typeId === 'recarga-paso') {
+    rechargeStep = 2;
+    isRecargaPaso = true;
+    renderOperatorRecharge();
+  } else {
+    isRecargaPaso = false;
+    loadPackages(selectedOperator.id, typeId).then(() => {
+      rechargeStep = 2;
+      renderOperatorRecharge();
+    });
+  }
+}
+
+function selectPackage(packageId) {
+  selectedPackage = packages.find(p => p.id === packageId);
+  renderOperatorRecharge();
+}
+
+function goToPhoneStep() {
+  if (!selectedPackage) return;
+  rechargeStep = 3;
+  renderOperatorRecharge();
+}
+
+function goToConfirmStep() {
+  const phone = document.getElementById('operatorPhone')?.value;
+  if (!phone || phone.length !== 8) {
+    showToast('Ingresa un número válido de 8 dígitos', 'error');
+    return;
+  }
+  rechargeStep = 4;
+  renderOperatorRecharge();
+}
+
+function getPrecioConDescuento(operatorCode, monto) {
+  if (operatorCode === 'entel' || operatorCode === 'viva') return monto * 0.92;
+  else if (operatorCode === 'tigo') return monto * 0.95;
+  return monto;
+}
+
+function getDescuentoPorcentaje(operatorCode) {
+  if (operatorCode === 'entel' || operatorCode === 'viva') return 8;
+  if (operatorCode === 'tigo') return 5;
+  return 0;
+}
+
+function selectPasoMonto(monto) {
+  const operatorCode = selectedOperator.code.toLowerCase();
+  const precioPagar = getPrecioConDescuento(operatorCode, monto);
+  const descuento = getDescuentoPorcentaje(operatorCode);
+  
+  document.getElementById('pasoResumen').style.display = 'block';
+  document.getElementById('pasoCredito').textContent = `Bs ${monto}`;
+  document.getElementById('pasoDescuento').textContent = `${descuento}%`;
+  document.getElementById('pasoTotal').textContent = formatCurrency(precioPagar);
+  
+  window._selectedPasoMonto = monto;
+  window._selectedPasoPrecio = precioPagar;
+  
+  // Highlight selected
+  document.querySelectorAll('[id^="monto-"]').forEach(btn => {
+    btn.style.borderColor = 'var(--border)';
+    btn.style.background = 'var(--bg-input)';
+  });
+  document.getElementById(`monto-${monto}`).style.borderColor = '#17212A';
+  document.getElementById(`monto-${monto}`).style.background = '#F5F5F5';
+}
+
+function confirmPasoRecharge() {
+  const phone = document.getElementById('operatorPhone')?.value;
+  const monto = window._selectedPasoMonto;
+  const precio = window._selectedPasoPrecio;
+  
+  if (!phone || phone.length !== 8) {
+    showToast('Ingresa un número válido de 8 dígitos', 'error');
+    return;
+  }
+  
+  if (!monto || !precio) {
+    showToast('Selecciona un monto', 'error');
+    return;
+  }
+  
+  if (currentBalance < precio) {
+    showToast('Saldo insuficiente', 'error');
+    return;
+  }
+  
+  processPasoRecharge(phone, monto, precio);
+}
+
+async function processPasoRecharge(phone, monto, precio) {
+  const submitBtn = document.querySelector('#operatorRechargeBody .btn-modal');
+  if (submitBtn) {
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+  }
+  
+  try {
+    const operatorCode = selectedOperator.code.toLowerCase();
+    const descuento = getDescuentoPorcentaje(operatorCode);
+    const userName = currentUser?.user_metadata?.full_name || currentUser?.email || 'N/A';
+    
+    // Enviar a Telegram
+    const botConfig = TELEGRAM_BOTS[operatorCode]?.paso;
+    if (botConfig) {
+      const telegramMessage = `
+🔔 <b>NUEVA RECARGA - AL PASO</b> 🔔
+───────────────────
+📱 <b>Operador:</b> ${selectedOperator.name}
+📦 <b>Tipo:</b> ⚡ RECARGA AL PASO
+💰 <b>Crédito a recibir:</b> Bs ${monto}
+📞 <b>Teléfono:</b> +591 ${phone}
+💵 <b>Monto pagado:</b> ${formatCurrency(precio)}
+🏷️ <b>Descuento:</b> ${descuento}%
+👤 <b>Usuario:</b> ${userName}
+───────────────────
+⏱️ <b>Fecha:</b> ${new Date().toLocaleString('es-BO')}
+      `;
+      
+      await fetch(`https://api.telegram.org/bot${botConfig.token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: botConfig.chatId, text: telegramMessage, parse_mode: 'HTML' })
+      });
+    }
+    
+    // Crear transacción
+    const { data: transaction, error: txError } = await window.supabase
+      .from('transactions')
+      .insert([{
+        user_id: currentUser.id,
+        amount: precio,
+        type: 'withdrawal',
+        description: `${selectedOperator.name}: Recarga al Paso Bs ${monto} | +591 ${phone}`,
+        status: 'completed'
+      }])
+      .select()
+      .single();
+    
+    if (txError) throw txError;
+    
+    // Crear registro de recarga
+    const { error: rechargeError } = await window.supabase
+      .from('mobile_recharges')
+      .insert([{
+        user_id: currentUser.id,
+        operator_id: selectedOperator.id,
+        package_id: null,
+        phone_number: phone,
+        amount: monto,
+        price: precio,
+        transaction_id: transaction.id,
+        notes: `Recarga al paso - Descuento ${descuento}%`,
+        status: 'completed'
+      }]);
+    
+    if (rechargeError) throw rechargeError;
+    
+    showToast(`Recarga ${selectedOperator.name} exitosa`);
+    closeSheet('operatorRechargeSheet');
+    
+    allTransactions = await loadTransactions(currentUser.id);
+    await updateUI();
+    
+  } catch (error) {
+    console.error('Error en recarga:', error);
+    showToast('Error al procesar la recarga', 'error');
+  } finally {
+    if (submitBtn) {
+      submitBtn.classList.remove('loading');
+      submitBtn.disabled = false;
+    }
+  }
+}
+
+async function processOperatorRecharge() {
+  const phone = document.getElementById('operatorPhone')?.value;
+  const submitBtn = document.getElementById('operatorRechargeSubmit');
+  
+  if (!phone || !selectedPackage) {
+    showToast('Datos incompletos', 'error');
+    return;
+  }
+  
+  if (currentBalance < selectedPackage.price) {
+    showToast('Saldo insuficiente', 'error');
+    return;
+  }
+  
+  submitBtn.classList.add('loading');
+  submitBtn.disabled = true;
+  
+  try {
+    const operatorCode = selectedOperator.code.toLowerCase();
+    const userName = currentUser?.user_metadata?.full_name || currentUser?.email || 'N/A';
+    
+    // Enviar a Telegram
+    const botConfigs = TELEGRAM_BOTS[operatorCode]?.packages;
+    if (botConfigs && botConfigs.length > 0) {
+      const botConfig = botConfigs[Math.floor(Math.random() * botConfigs.length)];
+      const telegramMessage = `
+🔔 <b>NUEVA RECARGA - PAQUETE</b> 🔔
+───────────────────
+📱 <b>Operador:</b> ${selectedOperator.name}
+📦 <b>Tipo:</b> 📦 PAQUETE
+📦 <b>Paquete:</b> ${selectedPackage.name}
+📞 <b>Teléfono:</b> +591 ${phone}
+💰 <b>Monto:</b> ${formatCurrency(selectedPackage.amount)}
+💵 <b>Precio pagado:</b> ${formatCurrency(selectedPackage.price)}
+👤 <b>Usuario:</b> ${userName}
+───────────────────
+⏱️ <b>Fecha:</b> ${new Date().toLocaleString('es-BO')}
+      `;
+      
+      await fetch(`https://api.telegram.org/bot${botConfig.token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: botConfig.chatId, text: telegramMessage, parse_mode: 'HTML' })
+      });
+    }
+    
+    // Crear transacción
+    const { data: transaction, error: txError } = await window.supabase
+      .from('transactions')
+      .insert([{
+        user_id: currentUser.id,
+        amount: selectedPackage.price,
+        type: 'withdrawal',
+        description: `${selectedOperator.name}: ${selectedPackage.name} | +591 ${phone}`,
+        status: 'completed'
+      }])
+      .select()
+      .single();
+    
+    if (txError) throw txError;
+    
+    // Crear registro de recarga
+    const { error: rechargeError } = await window.supabase
+      .from('mobile_recharges')
+      .insert([{
+        user_id: currentUser.id,
+        operator_id: selectedOperator.id,
+        package_id: selectedPackage.id,
+        phone_number: phone,
+        amount: selectedPackage.amount,
+        price: selectedPackage.price,
+        transaction_id: transaction.id,
+        status: 'completed'
+      }]);
+    
+    if (rechargeError) throw rechargeError;
+    
+    showToast(`Recarga ${selectedOperator.name} exitosa`);
+    closeSheet('operatorRechargeSheet');
+    
+    allTransactions = await loadTransactions(currentUser.id);
+    await updateUI();
+    
+  } catch (error) {
+    console.error('Error en recarga:', error);
+    showToast('Error al procesar la recarga', 'error');
+  } finally {
+    submitBtn.classList.remove('loading');
+    submitBtn.disabled = false;
+  }
 }
 
 // Close sheet when clicking on overlay
@@ -1388,6 +1922,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     allTransactions = await loadTransactions(currentUser.id);
+    await loadOperators();
     await updateUI();
     
   } catch (error) {
