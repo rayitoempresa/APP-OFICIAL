@@ -350,6 +350,227 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   box-shadow:inset 0 2px 4px rgba(0,0,0,.08);}
 .floating-nav .nav-item.active::before{width:60%;}
 
+/* ---------- BOTTOM SHEET MODAL ---------- */
+.sheet-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(0,0,0,.5);
+  z-index:2000;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .35s cubic-bezier(.4,0,.2,1),
+             visibility .35s cubic-bezier(.4,0,.2,1);
+  will-change:opacity;
+}
+.sheet-overlay.active{
+  opacity:1;
+  visibility:visible;
+}
+.sheet-content{
+  background:#FFFFFF;
+  border-radius:24px 24px 0 0;
+  padding:20px;
+  padding-bottom:calc(20px + env(safe-area-inset-bottom, 0px));
+  width:100%;
+  max-width:420px;
+  max-height:85vh;
+  overflow-y:auto;
+  box-shadow:0 -10px 40px rgba(0,0,0,.25);
+  transform:translateY(100%);
+  transition:transform .45s cubic-bezier(.16,1,.3,1);
+  will-change:transform;
+  transform:translateZ(0);
+  backface-visibility:hidden;
+}
+.sheet-overlay.active .sheet-content{
+  transform:translateY(0);
+}
+.sheet-grabber{
+  width:40px;
+  height:4px;
+  background:#CCCCCC;
+  border-radius:2px;
+  margin:0 auto 16px;
+  cursor:pointer;
+}
+.sheet-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+  padding-bottom:12px;
+  border-bottom:2px solid #E5E5E5;
+}
+.sheet-title{
+  font-size:16px;
+  font-weight:800;
+  color:#000;
+  letter-spacing:-0.3px;
+}
+.sheet-close{
+  cursor:pointer;
+  color:#888;
+  font-size:20px;
+  background:none;
+  border:none;
+  padding:4px;
+  transition:all .3s ease;
+}
+.sheet-close:hover{color:#E53935;transform:rotate(90deg);}
+.sheet-body{display:flex;flex-direction:column;gap:14px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-label{
+  font-size:11px;
+  font-weight:700;
+  color:#444;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+.form-input{
+  width:100%;
+  padding:12px;
+  border:1.5px solid #E5E5E5;
+  border-radius:8px;
+  font-size:14px;
+  background:#F8F8F8;
+  color:#000;
+  transition:all .3s ease;
+  outline:none;
+}
+.form-input:focus{
+  border-color:#17212A;
+  background:#FFFFFF;
+  box-shadow:0 0 0 3px rgba(23,33,42,.1);
+}
+.form-input::placeholder{color:#999;}
+.form-textarea{
+  width:100%;
+  padding:12px;
+  border:1.5px solid #E5E5E5;
+  border-radius:8px;
+  font-size:14px;
+  background:#F8F8F8;
+  color:#000;
+  transition:all .3s ease;
+  outline:none;
+  resize:vertical;
+  min-height:60px;
+  font-family:inherit;
+}
+.form-textarea:focus{
+  border-color:#17212A;
+  background:#FFFFFF;
+  box-shadow:0 0 0 3px rgba(23,33,42,.1);
+}
+.btn-modal{
+  width:100%;
+  padding:14px;
+  border-radius:8px;
+  border:none;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(90deg, #17212A 0%, #303C48 100%);
+  color:#fff;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
+}
+.btn-modal:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.3);}
+.btn-modal:active{transform:scale(.95);}
+.btn-modal:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.spinner{
+  width:16px;height:16px;
+  border:2px solid rgba(255,255,255,.3);
+  border-radius:50%;
+  border-top-color:#fff;
+  animation:spin .6s linear infinite;
+  display:none;
+}
+.btn-modal.loading .spinner{display:block;}
+.btn-modal.loading .btn-text{display:none;}
+
+/* QR Code placeholder */
+.qr-placeholder{
+  width:180px;
+  height:180px;
+  margin:0 auto;
+  background:#F8F8F8;
+  border:2px dashed #CCCCCC;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#999;
+  font-size:11px;
+  position:relative;
+  overflow:hidden;
+}
+.qr-placeholder::before{
+  content:'';
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:repeating-conic-gradient(
+    rgba(23,33,42,.05) 0% 25%,
+    transparent 25% 50%
+  );
+  animation:qrShimmer 3s linear infinite;
+}
+@keyframes qrShimmer{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+.qr-icon{
+  position:relative;
+  z-index:1;
+  font-size:40px;
+  color:#17212A;
+}
+
+/* File upload */
+.file-upload{
+  position:relative;
+}
+.file-upload input[type="file"]{
+  position:absolute;
+  opacity:0;
+  width:100%;
+  height:100%;
+  cursor:pointer;
+}
+.file-upload-label{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:14px;
+  border:2px dashed #CCCCCC;
+  border-radius:8px;
+  cursor:pointer;
+  transition:all .3s ease;
+  font-size:12px;
+  font-weight:600;
+  color:#888;
+  background:#F8F8F8;
+}
+.file-upload-label:hover{
+  border-color:#17212A;
+  color:#17212A;
+  background:#F5F5F5;
+}
+
 /* ---------- ANIMATIONS ---------- */
 @keyframes fadeIn{
   from{opacity:0;}
@@ -379,6 +600,9 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   from{opacity:0;transform:translateY(100%);}
   to{opacity:1;transform:translateY(0);}
 }
+@keyframes spin{
+  to{transform:rotate(360deg);}
+}
 
 /* Mobile Optimization */
 @media (max-width:480px){
@@ -399,6 +623,10 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
     width:18px;
     height:18px;
   }
+  .sheet-content{
+    padding:16px;
+    padding-bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 @media (max-width:360px){
@@ -415,6 +643,10 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   .floating-nav .nav-item svg{
     width:16px;
     height:16px;
+  }
+  .sheet-content{
+    padding:14px;
+    padding-bottom:calc(14px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -476,11 +708,11 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 
     <div class="module-window">
       <div class="buttons-row">
-        <button class="btn btn-recharge" onclick="alert('Recargar saldo')">
+        <button class="btn btn-recharge" onclick="openRechargeSheet()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
           Saldo
         </button>
-        <button class="btn btn-pay" onclick="alert('Realizar transferencia')">
+        <button class="btn btn-pay" onclick="openTransferSheet()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
           Transferir
         </button>
@@ -564,6 +796,72 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 
 <input type="file" id="avatarInput" accept="image/*" style="display:none">
 
+<!-- Bottom Sheet de Recarga de Saldo -->
+<div class="sheet-overlay" id="rechargeSheet">
+  <div class="sheet-content">
+    <div class="sheet-grabber"></div>
+    <div class="sheet-header">
+      <div class="sheet-title">Recargar Saldo</div>
+      <button class="sheet-close" onclick="closeSheet('rechargeSheet')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="form-group">
+        <label class="form-label">Monto a recargar (Bs)</label>
+        <input type="number" id="rechargeAmount" class="form-input" placeholder="Ej: 100" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Método de pago</label>
+        <div class="qr-placeholder">
+          <div class="qr-icon">QR</div>
+        </div>
+        <p style="text-align:center;font-size:10px;color:#888;margin-top:8px;">Escanee el código QR para realizar el pago</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Comprobante de pago</label>
+        <div class="file-upload">
+          <input type="file" id="rechargeReceipt" accept="image/*">
+          <label class="file-upload-label" for="rechargeReceipt">
+            📷 Subir comprobante
+          </label>
+        </div>
+      </div>
+      <button class="btn-modal" id="rechargeSubmit" onclick="submitRecharge()">
+        <span class="btn-text">Enviar solicitud</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Sheet de Transferencia -->
+<div class="sheet-overlay" id="transferSheet">
+  <div class="sheet-content">
+    <div class="sheet-grabber"></div>
+    <div class="sheet-header">
+      <div class="sheet-title">Transferir Dinero</div>
+      <button class="sheet-close" onclick="closeSheet('transferSheet')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="form-group">
+        <label class="form-label">Teléfono del destinatario</label>
+        <input type="tel" id="transferPhone" class="form-input" placeholder="Ej: 77712345">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Monto (Bs)</label>
+        <input type="number" id="transferAmount" class="form-input" placeholder="Ej: 50" min="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción (opcional)</label>
+        <textarea id="transferDescription" class="form-textarea" placeholder="Ej: Pago de deuda"></textarea>
+      </div>
+      <button class="btn-modal" id="transferSubmit" onclick="submitTransfer()">
+        <span class="btn-text">Enviar dinero</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
 <nav class="floating-nav" id="floatingNav">
   <button class="nav-item active" data-tab="tab-inicio" onclick="switchTab('tab-inicio', this)" title="Inicio">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -621,6 +919,178 @@ function formatDate(dateString) {
 function formatTime(dateString) {
   const date = new Date(dateString);
   return date.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
+}
+
+function showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position:fixed;top:20px;left:50%;transform:translateX(-50%);
+    padding:12px 20px;border-radius:8px;color:#fff;font-weight:600;
+    z-index:3000;font-size:13px;max-width:90%;text-align:center;
+    animation:fadeInDown .3s ease;
+  `;
+  toast.style.background = type === 'success' ? '#43A047' : '#E53935';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity .3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ============ BOTTOM SHEET FUNCTIONS ============
+function openSheet(sheetId) {
+  document.getElementById(sheetId).classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSheet(sheetId) {
+  document.getElementById(sheetId).classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function openRechargeSheet() {
+  document.getElementById('rechargeAmount').value = '';
+  document.getElementById('rechargeReceipt').value = '';
+  openSheet('rechargeSheet');
+}
+
+function openTransferSheet() {
+  document.getElementById('transferPhone').value = '';
+  document.getElementById('transferAmount').value = '';
+  document.getElementById('transferDescription').value = '';
+  openSheet('transferSheet');
+}
+
+// Close sheet when clicking on overlay
+document.querySelectorAll('.sheet-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+});
+
+// ============ RECARGA DE SALDO ============
+async function submitRecharge() {
+  const amount = document.getElementById('rechargeAmount').value;
+  const receipt = document.getElementById('rechargeReceipt').files[0];
+
+  if (!amount || parseFloat(amount) <= 0) { showToast('Ingresa un monto válido', 'error'); return; }
+  if (!receipt) { showToast('Selecciona un comprobante de pago', 'error'); return; }
+
+  const submitBtn = document.getElementById('rechargeSubmit');
+  submitBtn.classList.add('loading');
+  submitBtn.disabled = true;
+
+  try {
+    const { data: transaction, error: txError } = await window.supabase
+      .from('transactions')
+      .insert([{
+        user_id: currentUser.id,
+        amount: parseFloat(amount),
+        type: 'recharge',
+        description: 'Recarga de saldo',
+        status: 'pending',
+        metadata: {
+          phone: userProfile?.phone || '',
+          receipt_name: receipt.name,
+          receipt_size: receipt.size
+        }
+      }])
+      .select()
+      .single();
+
+    if (txError) throw txError;
+
+    showToast('Solicitud de recarga enviada correctamente');
+    closeSheet('rechargeSheet');
+    
+    allTransactions = await loadTransactions(currentUser.id);
+    await updateUI();
+    
+  } catch (error) {
+    console.error('Error en recarga:', error);
+    showToast('Error al enviar la solicitud de recarga', 'error');
+  } finally {
+    submitBtn.classList.remove('loading');
+    submitBtn.disabled = false;
+  }
+}
+
+// ============ TRANSFERENCIA ============
+async function submitTransfer() {
+  const phone = document.getElementById('transferPhone').value.trim();
+  const amount = parseFloat(document.getElementById('transferAmount').value);
+  const description = document.getElementById('transferDescription').value.trim();
+
+  if (!phone || phone.length < 7) { showToast('Ingresa un número de teléfono válido', 'error'); return; }
+  if (!amount || amount <= 0) { showToast('Ingresa un monto válido', 'error'); return; }
+  if (amount > currentBalance) { showToast('Saldo insuficiente', 'error'); return; }
+
+  const submitBtn = document.getElementById('transferSubmit');
+  submitBtn.classList.add('loading');
+  submitBtn.disabled = true;
+
+  try {
+    const { data: recipient, error: recipientError } = await window.supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('phone', phone)
+      .single();
+
+    if (recipientError || !recipient) {
+      showToast('El destinatario no está registrado', 'error');
+      submitBtn.classList.remove('loading');
+      submitBtn.disabled = false;
+      return;
+    }
+
+    const { data: sendTx, error: sendError } = await window.supabase
+      .from('transactions')
+      .insert([{
+        user_id: currentUser.id,
+        amount: amount,
+        type: 'transfer',
+        description: description || `Transferencia a ${phone}`,
+        status: 'completed',
+        metadata: { recipient: phone, direction: 'out' }
+      }])
+      .select()
+      .single();
+
+    if (sendError) throw sendError;
+
+    const { data: receiveTx, error: receiveError } = await window.supabase
+      .from('transactions')
+      .insert([{
+        user_id: recipient.id,
+        amount: amount,
+        type: 'deposit',
+        description: description || `Transferencia de ${currentUser.email}`,
+        status: 'completed',
+        metadata: { sender: currentUser.email, direction: 'in' }
+      }])
+      .select()
+      .single();
+
+    if (receiveError) throw receiveError;
+
+    showToast(`Transferencia de Bs ${amount.toFixed(2)} enviada`);
+    closeSheet('transferSheet');
+    
+    allTransactions = await loadTransactions(currentUser.id);
+    await updateUI();
+    
+  } catch (error) {
+    console.error('Error en transferencia:', error);
+    showToast('Error al procesar la transferencia', 'error');
+  } finally {
+    submitBtn.classList.remove('loading');
+    submitBtn.disabled = false;
+  }
 }
 
 // ============ CARGA DE DATOS ============
@@ -795,15 +1265,12 @@ function renderFullHistory() {
 async function updateUI() {
   if (!currentUser) return;
   
-  // Update balance
   currentBalance = await calculateBalance(currentUser.id);
   document.getElementById('balanceAmount').textContent = formatCurrency(currentBalance);
   
-  // Update stats
   document.getElementById('statBalance').textContent = formatCurrency(currentBalance);
   document.getElementById('statTransactions').textContent = allTransactions.length;
   
-  // Update profile
   if (userProfile) {
     const displayName = userProfile.full_name || currentUser.email.split('@')[0];
     document.getElementById('greetingName').textContent = displayName;
@@ -816,7 +1283,6 @@ async function updateUI() {
     }
   }
   
-  // Render transactions
   renderRecent();
   renderFullHistory();
 }
