@@ -10,26 +10,31 @@
 :root{
   --primary:#17212A;
   --primary-light:#2A2A2A;
-  --bg-body:#FAFAFA;
+  --accent:#3B82F6;
+  --bg-body:#F2F3F7;
   --bg-card:#FFFFFF;
-  --bg-input:#F8F8F8;
-  --border:#E5E5E5;
+  --bg-input:#F5F6FA;
+  --border:#ECEDF1;
   --border-dark:#CCCCCC;
   --text-primary:#000000;
   --text-secondary:#444444;
   --text-muted:#888888;
   --danger:#E53935;
-  --success:#43A047;
-  --shadow-sm:0 2px 4px rgba(0,0,0,.06);
-  --shadow-md:0 4px 12px rgba(0,0,0,.08);
-  --shadow-lg:0 8px 24px rgba(0,0,0,.12);
-  --card-bg:linear-gradient(90deg, #17212A 0%, #1C2731 28%, #303C48 55%, #414D59 78%, #2D3945 100%);
+  --success:#1FA463;
+  --shadow-sm:0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.04);
+  --shadow-md:0 4px 16px rgba(16,24,40,.07), 0 1px 3px rgba(16,24,40,.05);
+  --shadow-lg:0 12px 34px rgba(16,24,40,.12), 0 2px 8px rgba(16,24,40,.07);
+  --card-bg:linear-gradient(135deg, #0E161D 0%, #1A2733 42%, #2C3B49 72%, #3E4E5E 100%);
   --card-text:#FFFFFF;
-  --radius:12px;
-  --radius-sm:8px;
+  --radius:20px;
+  --radius-sm:14px;
+  --border-dark:#D9DBE3;
+  --text-primary:#0B0F14;
+  --text-secondary:#4A4F58;
+  --text-muted:#8B909B;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
-  font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Arial, sans-serif;
   scrollbar-width:none!important;-ms-overflow-style:none!important;}
 *::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;}
 html{scroll-behavior:smooth;}
@@ -37,96 +42,162 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   display:flex;justify-content:center;align-items:flex-start;padding:0;padding-bottom:0;
   position:relative;overflow:hidden;
   -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;}
-.wallet-container{width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px;
+  -moz-osx-font-smoothing:grayscale;
+  background-image:radial-gradient(120% 60% at 50% -10%, #E4E8F2 0%, transparent 55%);}
+.wallet-container{width:100%;max-width:420px;display:flex;flex-direction:column;gap:16px;
   position:relative;overflow-y:auto;overflow-x:hidden;height:100vh;max-height:100vh;
-  padding:16px;padding-bottom:90px;
+  padding:18px;padding-bottom:104px;
   will-change:transform;
   transform:translateZ(0);
   backface-visibility:hidden;}
 
 /* ---------- HEADER ---------- */
-.header{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;padding:4px;
+.header{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;padding:4px 2px;
   animation:fadeInDown .6s cubic-bezier(.16,1,.3,1);}
-.header-left{display:flex;align-items:center;gap:10px;}
-.avatar-wrap{position:relative;width:40px;height:40px;flex-shrink:0;cursor:pointer;
+.header-left{display:flex;align-items:center;gap:12px;min-width:0;}
+.avatar-wrap{position:relative;width:46px;height:46px;flex-shrink:0;cursor:pointer;
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
-.avatar-wrap:hover{transform:scale(1.1) rotate(5deg);}
-.avatar-wrap:active{transform:scale(.95);}
-.profile-img{width:40px;height:40px;border-radius:50%;background:var(--primary);
+.avatar-wrap:hover{transform:scale(1.06);}
+.avatar-wrap:active{transform:scale(.94);}
+.profile-img{width:46px;height:46px;border-radius:50%;background:var(--primary);
   background-image:url('https://picsum.photos/id/64/100/100');background-size:cover;background-position:center;
-  border:2px solid var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.15);
+  box-shadow:0 6px 16px rgba(16,24,40,.18), inset 0 0 0 2px rgba(255,255,255,.9);
   transition:box-shadow .3s cubic-bezier(.4,0,.2,1);}
-.avatar-cam-dot{position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;
-  background:var(--primary);border:2px solid #fff;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 2px 4px rgba(0,0,0,.2);
+.avatar-cam-dot{position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;border-radius:50%;
+  background:var(--primary);border:2.5px solid var(--bg-body);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 6px rgba(16,24,40,.28);
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
-.avatar-wrap:hover .avatar-cam-dot{transform:scale(1.2);}
-.avatar-cam-dot svg{width:7px;height:7px;stroke:#fff;fill:none;stroke-width:2.5;}
-.greeting-name{font-size:13px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;}
+.avatar-wrap:hover .avatar-cam-dot{transform:scale(1.15);}
+.avatar-cam-dot svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.5;}
+.greeting-wrap{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.greeting-hi{font-size:11.5px;font-weight:600;color:var(--text-muted);letter-spacing:.1px;}
+.greeting-name{font-size:16px;font-weight:800;color:var(--text-primary);letter-spacing:-0.4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.header-balance-toggle{display:flex;align-items:center;gap:7px;padding:9px 12px;border-radius:999px;
+  background:#FFFFFF;border:1px solid var(--border);box-shadow:var(--shadow-sm);cursor:pointer;
+  color:var(--text-primary);font-size:11.5px;font-weight:700;letter-spacing:-0.2px;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, background .3s ease;}
+.header-balance-toggle:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.header-balance-toggle:active{transform:scale(.95);}
+.header-balance-toggle svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
+.header-balance-toggle .hbt-label{white-space:nowrap;}
+.header-icon-btn{width:40px;height:40px;border-radius:50%;background:#FFFFFF;border:1px solid var(--border);
+  box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--text-primary);transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;}
+.header-icon-btn:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.header-icon-btn:active{transform:scale(.92);}
+.header-icon-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;}
 
-/* ---------- CARD ---------- */
+/* ---------- BALANCE ROW (card + actions) ---------- */
+.balance-row{display:flex;gap:12px;align-items:stretch;flex-shrink:0;}
+.balance-row .debit-card{flex:1 1 auto;min-width:0;}
+.balance-actions{display:flex;flex-direction:column;gap:12px;width:132px;flex-shrink:0;}
+.balance-action-btn{flex:1;border:none;border-radius:18px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  font-size:12px;font-weight:700;letter-spacing:-0.2px;position:relative;overflow:hidden;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;}
+.balance-action-btn svg{width:20px;height:20px;stroke-width:2.2;}
+.balance-action-btn:active{transform:scale(.95);}
+.balance-action-btn.primary{background:linear-gradient(135deg, #17212A 0%, #2C3B49 100%);color:#fff;
+  box-shadow:0 10px 22px -8px rgba(23,33,42,.6);}
+.balance-action-btn.primary:hover{box-shadow:0 14px 28px -8px rgba(23,33,42,.65);transform:translateY(-2px);}
+.balance-action-btn.ghost{background:#FFFFFF;color:var(--text-primary);border:1px solid var(--border-dark);
+  box-shadow:var(--shadow-sm);}
+.balance-action-btn.ghost:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+
+/* ---------- CARD (real debit-card look) ---------- */
 .debit-card{
-  position:relative;border-radius:16px;padding:20px;overflow:hidden;flex-shrink:0;
+  position:relative;border-radius:20px;padding:16px 16px 14px;overflow:hidden;flex-shrink:0;
+  aspect-ratio:1 / 1;
   background:var(--card-bg);
   color:var(--card-text);
-  min-height:120px;display:flex;flex-direction:column;justify-content:center;
-  box-shadow:0 10px 30px rgba(0,0,0,.25);
-  border:1px solid rgba(255,255,255,.2);
+  display:flex;flex-direction:column;justify-content:space-between;
+  box-shadow:0 22px 46px -16px rgba(14,22,29,.65), 0 8px 18px rgba(14,22,29,.28);
+  border:1px solid rgba(255,255,255,.16);
   animation:scaleIn .8s cubic-bezier(.16,1,.3,1);
-  transition:all .5s cubic-bezier(.4,0,.2,1);
+  transition:transform .5s cubic-bezier(.4,0,.2,1), box-shadow .5s cubic-bezier(.4,0,.2,1);
   will-change:transform;
   transform:translateZ(0);
   backface-visibility:hidden;}
-.debit-card:hover{transform:translateY(-3px) scale(1.02);
-  box-shadow:0 15px 40px rgba(0,0,0,.3);}
+.debit-card:hover{transform:translateY(-4px) scale(1.01);
+  box-shadow:0 30px 62px -18px rgba(14,22,29,.7), 0 10px 24px rgba(14,22,29,.3);}
 .debit-card::before{
   content:'';
   position:absolute;
-  top:-50%;
+  top:-55%;
   right:-30%;
-  width:200px;
-  height:200px;
-  background:radial-gradient(circle, rgba(255,255,255,.1) 0%, transparent 70%);
+  width:280px;
+  height:280px;
+  background:radial-gradient(circle, rgba(255,255,255,.18) 0%, transparent 66%);
   border-radius:50%;
-  animation:shimmer 3s ease-in-out infinite;}
+  animation:shimmer 7s ease-in-out infinite;}
+.debit-card::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(115deg, transparent 42%, rgba(255,255,255,.14) 50%, transparent 58%);
+  transform:translateX(-30%);
+  animation:cardSheen 6s ease-in-out infinite;
+  pointer-events:none;}
 @keyframes shimmer{
-  0%,100%{transform:translate(0,0);opacity:.5;}
-  50%{transform:translate(-20px,20px);opacity:1;}
+  0%,100%{transform:translate(0,0);opacity:.55;}
+  50%{transform:translate(-24px,24px);opacity:1;}
 }
-.card-row-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;position:relative;z-index:1;}
-.card-issuer{font-size:11px;letter-spacing:2px;font-weight:700;text-align:right;
-  text-shadow:0 2px 4px rgba(0,0,0,.3);}
-.card-row-mid{text-align:left;position:relative;z-index:1;}
-.balance-label-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
-.balance-label{font-size:11px;color:rgba(255,255,255,.9);font-weight:500;
-  text-shadow:0 1px 2px rgba(0,0,0,.3);}
-.eye-toggle{cursor:pointer;display:flex;color:rgba(255,255,255,.9);
-  transition:all .3s cubic-bezier(.34,1.56,.64,1);}
-.eye-toggle:hover{transform:scale(1.2) rotate(10deg);}
+@keyframes cardSheen{
+  0%,100%{transform:translateX(-35%);opacity:0;}
+  50%{transform:translateX(35%);opacity:1;}
+}
+/* fila superior: chip + marca */
+.card-row-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+.card-chip{width:38px;height:28px;border-radius:6px;
+  background:linear-gradient(150deg, #F6D97A 0%, #E3B94E 45%, #C99A32 100%);
+  position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35), 0 2px 6px rgba(0,0,0,.25);
+  overflow:hidden;}
+.card-chip::before{content:'';position:absolute;left:0;right:0;top:50%;height:1.5px;
+  background:rgba(120,86,20,.55);transform:translateY(-50%);}
+.card-chip::after{content:'';position:absolute;top:0;bottom:0;left:50%;width:1.5px;
+  background:rgba(120,86,20,.45);transform:translateX(-50%);
+  box-shadow:11px 0 0 -0.75px rgba(120,86,20,.45), -11px 0 0 -0.75px rgba(120,86,20,.45);}
+.card-brand-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.card-issuer{font-size:11px;letter-spacing:2.5px;font-weight:800;text-align:right;
+  text-shadow:0 2px 6px rgba(0,0,0,.35);opacity:.96;}
+.card-brand{display:flex;align-items:center;}
+.card-brand svg{width:26px;height:auto;}
+/* fila central: etiqueta + toggle saldo */
+.card-row-labels{display:flex;align-items:center;gap:8px;position:relative;z-index:1;}
+.balance-label{font-size:9.5px;color:rgba(255,255,255,.72);font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;}
+.eye-toggle{cursor:pointer;display:flex;color:rgba(255,255,255,.85);padding:2px;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.eye-toggle:hover{transform:scale(1.15);}
 .eye-toggle:active{transform:scale(.9);}
-.eye-toggle svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+.eye-toggle svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;}
 .balance-amount{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;
-  text-shadow:0 2px 8px rgba(0,0,0,.5);letter-spacing:-0.5px;
-  animation:pulse 2s ease-in-out infinite;}
-@keyframes pulse{
-  0%,100%{text-shadow:0 2px 8px rgba(0,0,0,.5);}
-  50%{text-shadow:0 2px 16px rgba(255,255,255,.7);}
-}
+  text-shadow:0 4px 16px rgba(0,0,0,.4);letter-spacing:-1px;line-height:1.05;position:relative;z-index:1;
+  word-break:break-word;}
+/* fila inferior: número enmascarado + titular */
+.card-row-bottom{display:flex;align-items:flex-end;position:relative;z-index:1;}
+.card-holder{text-align:left;min-width:0;}
+.card-holder-label{font-size:8.5px;color:rgba(255,255,255,.6);letter-spacing:1.4px;text-transform:uppercase;
+  font-weight:700;margin-bottom:2px;}
+.card-holder-name{font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+  color:rgba(255,255,255,.94);text-shadow:0 2px 6px rgba(0,0,0,.4);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ---------- BUTTONS ---------- */
 .module-window{background:var(--bg-card);
-  border-radius:var(--radius);padding:14px;box-shadow:var(--shadow-md);border:1px solid var(--border);flex-shrink:0;
-  transition:all .4s cubic-bezier(.4,0,.2,1);
+  border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);border:1px solid var(--border);flex-shrink:0;
+  transition:box-shadow .4s cubic-bezier(.4,0,.2,1), transform .4s cubic-bezier(.4,0,.2,1);
   animation:fadeInUp .8s cubic-bezier(.16,1,.3,1);
   will-change:transform;
   transform:translateZ(0);
   backface-visibility:hidden;}
-.module-window:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
-.buttons-row{display:flex;gap:10px;}
-.btn{flex:1;padding:14px;border-radius:var(--radius-sm);border:none;font-size:12px;font-weight:700;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:all .3s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;
+.module-window:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.buttons-row{display:flex;gap:12px;}
+.btn{flex:1;padding:15px;border-radius:16px;border:none;font-size:13px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:9px;letter-spacing:-0.2px;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;position:relative;overflow:hidden;
   will-change:transform;
   transform:translateZ(0);
   backface-visibility:hidden;}
@@ -142,71 +213,64 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   transform:translate(-50%,-50%);
   transition:width .6s ease,height .6s ease;}
 .btn:active::before{
-  width:200px;
-  height:200px;
+  width:220px;
+  height:220px;
   opacity:0;}
-.btn:active{transform:scale(.95);}
+.btn:active{transform:scale(.96);}
 .btn-recharge{
-  background:linear-gradient(
-    90deg,
-    rgba(10, 20, 28, 0.95),
-    rgba(45, 59, 72, 0.88),
-    rgba(65, 77, 89, 0.80)
-  );
+  background:linear-gradient(135deg, #17212A 0%, #2C3B49 100%);
   color:#fff;
-  box-shadow:0 4px 12px rgba(0,0,0,.25);
+  box-shadow:0 8px 20px -6px rgba(23,33,42,.55);
   position:relative;
   overflow:hidden;}
-.btn-recharge:hover{box-shadow:0 8px 20px rgba(0,0,0,.3);transform:translateY(-2px);}
-.btn-recharge:active{box-shadow:0 2px 6px rgba(0,0,0,.2);}
+.btn-recharge:hover{box-shadow:0 12px 26px -6px rgba(23,33,42,.6);transform:translateY(-2px);}
+.btn-recharge:active{box-shadow:0 4px 12px -4px rgba(23,33,42,.5);}
 .btn-pay{
-  background:linear-gradient(
-    90deg,
-    rgba(10, 20, 28, 0.95),
-    rgba(45, 59, 72, 0.88),
-    rgba(65, 77, 89, 0.80)
-  );
-  color:#fff;
-  box-shadow:0 2px 8px rgba(0,0,0,.1);
+  background:#FFFFFF;
+  color:var(--text-primary);
+  box-shadow:var(--shadow-sm);
+  border:1px solid var(--border-dark);
   position:relative;
   overflow:hidden;}
-.btn-pay:hover{box-shadow:0 6px 16px rgba(0,0,0,.15);transform:translateY(-2px);}
-.btn-pay:active{box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.btn-pay::before{background:rgba(23,33,42,.08);}
+.btn-pay:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.btn-pay:active{box-shadow:var(--shadow-sm);}
 
-.section-title{font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:10px;
-  display:flex;align-items:center;gap:8px;letter-spacing:-0.2px;}
+.section-title{font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;letter-spacing:-0.4px;}
 .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right, var(--border-dark), transparent);
   transition:background .3s ease;}
-.link-small{font-size:10px;font-weight:700;color:var(--text-primary);cursor:pointer;
-  text-decoration:underline;transition:all .3s cubic-bezier(.4,0,.2,1);position:relative;}
-.link-small:hover{opacity:.7;transform:translateX(3px);}
+.link-small{font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;
+  transition:all .3s cubic-bezier(.4,0,.2,1);position:relative;}
+.link-small:hover{opacity:.75;transform:translateX(2px);}
 .link-small:active{transform:scale(.95);}
 
-.quick-actions-row{display:flex;gap:8px;margin-bottom:12px;}
+.quick-actions-row{display:flex;gap:10px;margin-bottom:14px;}
 .quick-action-btn{flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);
-  padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
-  color:var(--text-primary);font-weight:700;font-size:10px;
-  transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:var(--shadow-sm);
+  padding:14px 4px;display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;
+  color:var(--text-primary);font-weight:700;font-size:11px;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, background .3s ease;
+  box-shadow:var(--shadow-sm);
   will-change:transform;
   transform:translateZ(0);
   backface-visibility:hidden;}
-.quick-action-btn:hover{box-shadow:var(--shadow-md);transform:translateY(-3px) scale(1.05);}
+.quick-action-btn:hover{box-shadow:var(--shadow-md);background:#fff;transform:translateY(-3px) scale(1.03);}
 .quick-action-btn:active{transform:translateY(0) scale(.95);box-shadow:var(--shadow-sm);}
-.qa-icon{width:28px;height:28px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;
-  background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.1);
-  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+.qa-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:#fff;box-shadow:0 3px 10px rgba(16,24,40,.1);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
   overflow:hidden;}
-.quick-action-btn:hover .qa-icon{transform:rotate(15deg) scale(1.1);}
-.qa-icon img{width:100%;height:100%;object-fit:cover;border-radius:var(--radius-sm);}
-.qa-icon svg{width:15px;height:15px;stroke-width:2;}
+.quick-action-btn:hover .qa-icon{transform:scale(1.08);}
+.qa-icon img{width:100%;height:100%;object-fit:cover;border-radius:12px;}
+.qa-icon svg{width:18px;height:18px;stroke-width:2;}
 
 /* ---------- TRANSACTIONS ---------- */
-.tx-group-label{font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:.3px;
-  padding:10px 2px 6px;text-transform:uppercase;
+.tx-group-label{font-size:11px;font-weight:800;color:var(--text-muted);letter-spacing:.6px;
+  padding:14px 2px 8px;text-transform:uppercase;
   animation:fadeIn .5s cubic-bezier(.16,1,.3,1);}
-.transaction-item{background:var(--bg-input);border-radius:var(--radius-sm);padding:12px;border:1px solid var(--border);
-  display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:6px;
-  transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:var(--shadow-sm);
+.transaction-item{background:var(--bg-input);border-radius:var(--radius-sm);padding:14px;border:1px solid transparent;
+  display:flex;align-items:center;gap:13px;cursor:pointer;margin-bottom:8px;
+  transition:transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s ease, background .3s ease;
   will-change:transform;
   transform:translateZ(0);
   backface-visibility:hidden;
@@ -216,67 +280,97 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 .transaction-item:nth-child(3){animation-delay:.15s;}
 .transaction-item:nth-child(4){animation-delay:.2s;}
 .transaction-item:nth-child(5){animation-delay:.25s;}
-.transaction-item:hover{box-shadow:var(--shadow-md);transform:translateX(5px) scale(1.02);}
-.transaction-item:active{transform:translateX(0) scale(.98);box-shadow:var(--shadow-sm);}
+.transaction-item:hover{background:#fff;box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.transaction-item:active{transform:scale(.98);box-shadow:var(--shadow-sm);}
 .transaction-item:last-child{margin-bottom:0;}
-.transaction-icon{width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  box-shadow:0 2px 6px rgba(0,0,0,.08);
-  transition:all .3s cubic-bezier(.34,1.56,.64,1);}
-.transaction-item:hover .transaction-icon{transform:scale(1.1) rotate(5deg);}
-.transaction-icon svg{width:15px;height:15px;fill:none;stroke-width:2;}
-.transaction-details{flex:1;min-width:0;}
-.transaction-title{font-size:12px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.transaction-sub{font-size:10px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.transaction-right{text-align:right;flex-shrink:0;}
-.transaction-amount{font-size:12px;font-weight:700;white-space:nowrap;letter-spacing:-0.3px;
+.transaction-icon{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
-.transaction-item:hover .transaction-amount{transform:scale(1.1);}
+.transaction-item:hover .transaction-icon{transform:scale(1.06);}
+.transaction-icon svg{width:18px;height:18px;fill:none;stroke-width:2;}
+.transaction-details{flex:1;min-width:0;}
+.transaction-title{font-size:13.5px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.2px;}
+.transaction-sub{font-size:11px;color:var(--text-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.transaction-right{text-align:right;flex-shrink:0;}
+.transaction-amount{font-size:14px;font-weight:800;white-space:nowrap;letter-spacing:-0.4px;color:var(--text-primary);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.transaction-item:hover .transaction-amount{transform:scale(1.05);}
 .transaction-amount.positive{color:var(--success);}
-.transaction-time{font-size:9px;color:var(--text-muted);margin-top:2px;font-weight:500;}
+.transaction-time{font-size:10px;color:var(--text-muted);margin-top:3px;font-weight:500;}
 
 /* ---------- PROFILE ---------- */
-.profile-section{text-align:center;padding:4px 0;
+.profile-section{text-align:center;padding:8px 0 4px;
   animation:fadeInUp .8s cubic-bezier(.16,1,.3,1);}
-.avatar-lg-wrap{position:relative;width:72px;height:72px;margin:0 auto 10px;cursor:pointer;
+.avatar-lg-wrap{position:relative;width:88px;height:88px;margin:0 auto 14px;cursor:pointer;
   transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
-.avatar-lg-wrap:hover{transform:scale(1.1) rotate(-5deg);}
+.avatar-lg-wrap:hover{transform:scale(1.06);}
 .avatar-lg-wrap:active{transform:scale(.95);}
-.profile-avatar-lg{width:72px;height:72px;border-radius:50%;background:var(--primary);
+.profile-avatar-lg{width:88px;height:88px;border-radius:50%;background:var(--primary);
   background-image:url('https://picsum.photos/id/64/200/200');background-size:cover;background-position:center;
-  border:3px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,.2);
+  box-shadow:0 12px 30px -8px rgba(16,24,40,.35), inset 0 0 0 4px #fff;
   transition:box-shadow .3s ease;}
-.avatar-lg-wrap:hover .profile-avatar-lg{box-shadow:0 8px 24px rgba(0,0,0,.3);}
-.avatar-cam-badge{position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;
-  background:var(--primary);border:2px solid #fff;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 2px 8px rgba(0,0,0,.2);
+.avatar-lg-wrap:hover .profile-avatar-lg{box-shadow:0 18px 40px -10px rgba(16,24,40,.4), inset 0 0 0 4px #fff;}
+.avatar-cam-badge{position:absolute;bottom:2px;right:2px;width:28px;height:28px;border-radius:50%;
+  background:var(--primary);border:3px solid #fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(16,24,40,.28);
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
-.avatar-lg-wrap:hover .avatar-cam-badge{transform:scale(1.2) rotate(10deg);}
-.avatar-cam-badge svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:2.2;}
-.profile-name{font-size:16px;font-weight:800;margin-bottom:3px;color:#000;letter-spacing:-0.3px;}
-.profile-email{font-size:11px;color:var(--text-secondary);margin-bottom:12px;font-weight:500;}
-.profile-stats{display:flex;gap:8px;margin-top:10px;}
-.stat-card{flex:1;background:var(--bg-input);border-radius:var(--radius-sm);padding:10px;border:1px solid var(--border);
+.avatar-lg-wrap:hover .avatar-cam-badge{transform:scale(1.12);}
+.avatar-cam-badge svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.2;}
+.profile-name{font-size:20px;font-weight:800;margin-bottom:4px;color:var(--text-primary);letter-spacing:-0.5px;}
+.profile-email{font-size:12.5px;color:var(--text-muted);margin-bottom:6px;font-weight:500;}
+.profile-phone{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-secondary);
+  font-weight:600;margin-bottom:16px;}
+.profile-phone svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.profile-edit-btn{display:inline-flex;align-items:center;gap:8px;margin:6px 0 4px;padding:11px 20px;
+  border-radius:999px;border:none;background:linear-gradient(135deg, #17212A 0%, #2C3B49 100%);color:#fff;
+  font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 10px 22px -8px rgba(23,33,42,.6);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;}
+.profile-edit-btn:hover{box-shadow:0 14px 28px -8px rgba(23,33,42,.65);transform:translateY(-2px);}
+.profile-edit-btn:active{transform:scale(.96);}
+.profile-edit-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;}
+.profile-stats{display:flex;gap:10px;margin-top:16px;}
+
+/* Bloque de datos (solo lectura) */
+.profile-info{display:flex;flex-direction:column;margin-top:18px;border-top:1px solid var(--border);
+  padding-top:4px;text-align:left;}
+.profile-info-row{display:flex;align-items:center;gap:12px;padding:13px 2px;
+  border-bottom:1px solid var(--border);}
+.profile-info-row:last-child{border-bottom:none;}
+.profile-info-icon{width:36px;height:36px;border-radius:11px;flex-shrink:0;
+  background:var(--bg-input);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;color:var(--text-secondary);}
+.profile-info-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;}
+.profile-info-text{flex:1;min-width:0;}
+.profile-info-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;
+  letter-spacing:.6px;margin-bottom:2px;}
+.profile-info-value{font-size:13.5px;font-weight:700;color:var(--text-primary);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.profile-info-lock{color:var(--text-muted);flex-shrink:0;}
+.profile-info-lock svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* Campo de solo lectura en el sheet */
+.form-input[readonly]{background:#F0F1F5;color:var(--text-muted);cursor:not-allowed;border-style:dashed;}
+.stat-card{flex:1;background:var(--bg-input);border-radius:var(--radius-sm);padding:14px 8px;border:1px solid var(--border);
   box-shadow:var(--shadow-sm);
-  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;
   will-change:transform;
   transform:translateZ(0);
   backface-visibility:hidden;}
-.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px) scale(1.05);}
-.stat-value{font-size:14px;font-weight:800;color:var(--primary);letter-spacing:-0.3px;
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px);}
+.stat-value{font-size:16px;font-weight:800;color:var(--text-primary);letter-spacing:-0.4px;
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
-.stat-card:hover .stat-value{transform:scale(1.1);}
-.stat-label{font-size:8px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;font-weight:600;}
-.profile-menu-btn{width:100%;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border-dark);background:var(--bg-input);
-  color:var(--text-primary);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:11px;
-  transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:var(--shadow-sm);
+.stat-card:hover .stat-value{transform:scale(1.06);}
+.stat-label{font-size:9.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:700;}
+.profile-menu-btn{width:100%;padding:15px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-input);
+  color:var(--text-primary);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:12px;font-size:13px;
+  transition:transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s ease, background .3s ease;
   will-change:transform;
   transform:translateZ(0);
   backface-visibility:hidden;}
-.profile-menu-btn:hover{box-shadow:var(--shadow-md);transform:translateX(5px);}
-.profile-menu-btn:active{transform:translateX(0) scale(.98);box-shadow:var(--shadow-sm);}
-.profile-menu-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;
+.profile-menu-btn:hover{box-shadow:var(--shadow-md);background:#fff;transform:translateY(-1px);}
+.profile-menu-btn:active{transform:scale(.98);box-shadow:var(--shadow-sm);}
+.profile-menu-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
-.profile-menu-btn:hover svg{transform:rotate(10deg) scale(1.1);}
+.profile-menu-btn:hover svg{transform:scale(1.1);}
 .profile-menu-btn.danger{color:var(--danger);}
 
 /* ---------- TABS / NAV ---------- */
@@ -608,10 +702,12 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 
 /* Mobile Optimization */
 @media (max-width:480px){
-  .wallet-container{padding:12px;padding-bottom:85px;}
-  .debit-card{padding:16px;border-radius:14px;min-height:110px;}
+  .wallet-container{padding:14px;padding-bottom:96px;}
+  .debit-card{padding:14px 14px 12px;border-radius:18px;}
   .balance-amount{font-size:24px;}
-  .module-window{padding:12px;border-radius:10px;}
+  .card-chip{width:34px;height:25px;}
+  .balance-actions{width:118px;}
+  .module-window{padding:14px;border-radius:16px;}
   .floating-nav{
     padding:8px 12px;
     padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px));
@@ -686,36 +782,57 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
             <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           </div>
         </div>
-        <div>
+        <div class="greeting-wrap">
+          <div class="greeting-hi">Bienvenido de nuevo</div>
           <div class="greeting-name" id="greetingName">Usuario</div>
         </div>
       </div>
-    </div>
-
-    <!-- Tarjeta de débito -->
-    <div class="debit-card">
-      <div class="card-row-top">
-        <span class="card-issuer">RAYITO</span>
-      </div>
-      <div class="card-row-mid">
-        <div class="balance-label-row">
-          <span class="balance-label">Saldo disponible</span>
-          <span class="eye-toggle" onclick="toggleBalanceVisibility()" title="Mostrar/ocultar saldo">
-            <svg id="eyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-          </span>
+      <div class="header-actions">
+        <div class="header-balance-toggle" id="headerBalanceToggle" onclick="toggleBalanceVisibility()" title="Ocultar/mostrar saldo">
+          <svg id="headerEyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span class="hbt-label" id="headerEyeLabel">Ocultar saldo</span>
         </div>
-        <div class="balance-amount" id="balanceAmount">Bs 0.00</div>
       </div>
     </div>
 
-    <div class="module-window">
-      <div class="buttons-row">
-        <button class="btn btn-recharge" onclick="openRechargeSheet()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+    <!-- Saldo + acciones -->
+    <div class="balance-row">
+      <!-- Tarjeta de saldo -->
+      <div class="debit-card">
+        <div class="card-row-top">
+          <div class="card-chip"></div>
+          <div class="card-brand-wrap">
+            <span class="card-issuer">RAYITO</span>
+            <span class="card-brand">
+              <svg viewBox="0 0 48 16" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="8" r="8" fill="rgba(255,255,255,.85)"/><circle cx="28" cy="8" r="8" fill="rgba(255,255,255,.45)"/></svg>
+            </span>
+          </div>
+        </div>
+        <div>
+          <div class="card-row-labels">
+            <span class="balance-label">Saldo disponible</span>
+            <span class="eye-toggle" onclick="toggleBalanceVisibility()" title="Mostrar/ocultar saldo">
+              <svg id="eyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+          </div>
+          <div class="balance-amount" id="balanceAmount">Bs 0.00</div>
+        </div>
+        <div class="card-row-bottom">
+          <div class="card-holder">
+            <div class="card-holder-label">Titular</div>
+            <div class="card-holder-name" id="cardHolderName">USUARIO</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="balance-actions">
+        <button class="balance-action-btn primary" onclick="openRechargeSheet()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
           Saldo
         </button>
-        <button class="btn btn-pay" onclick="openTransferSheet()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        <button class="balance-action-btn ghost" onclick="openTransferSheet()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
           Transferir
         </button>
       </div>
@@ -755,16 +872,47 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
         </div>
         <div class="profile-name" id="profileName">Usuario</div>
         <div class="profile-email" id="profileEmail">email@example.com</div>
+        <div>
+          <button class="profile-edit-btn" onclick="openEditProfileSheet()">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+            Editar perfil
+          </button>
+        </div>
         <div class="profile-stats">
           <div class="stat-card"><div class="stat-value" id="statTransactions">0</div><div class="stat-label">Transacciones</div></div>
           <div class="stat-card"><div class="stat-value" id="statBalance">Bs 0</div><div class="stat-label">Saldo</div></div>
           <div class="stat-card"><div class="stat-value">★</div><div class="stat-label">Usuario</div></div>
         </div>
-        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
-          <button class="profile-menu-btn">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-            Configuración
-          </button>
+
+        <!-- Datos de la cuenta (solo lectura) -->
+        <div class="profile-info">
+          <div class="profile-info-row">
+            <div class="profile-info-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div class="profile-info-text">
+              <div class="profile-info-label">Correo electrónico</div>
+              <div class="profile-info-value" id="profileInfoEmail">email@example.com</div>
+            </div>
+            <div class="profile-info-lock" title="No editable">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+          </div>
+          <div class="profile-info-row">
+            <div class="profile-info-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="profile-info-text">
+              <div class="profile-info-label">Número de celular</div>
+              <div class="profile-info-value" id="profilePhone">+591 00000</div>
+            </div>
+            <div class="profile-info-lock" title="No editable">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
           <button class="profile-menu-btn">
             <svg viewBox="0 0 24 24"><path d="M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10z"/></svg>
             Seguridad
@@ -859,6 +1007,47 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
       <!-- Contenido dinámico de recarga -->
     </div>
   </div>
+</div>
+
+<!-- Bottom Sheet de Editar Perfil -->
+<div class="sheet-overlay" id="editProfileSheet">
+ <div class="sheet-content">
+    <div class="sheet-grabber"></div>
+    <div class="sheet-header">
+      <div class="sheet-title">Editar Perfil</div>
+      <button class="sheet-close" onclick="closeSheet('editProfileSheet')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="form-group">
+        <label class="form-label">Foto de perfil</label>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="avatar-lg-wrap" style="width:64px;height:64px;margin:0;" onclick="openAvatarPicker()">
+            <div class="profile-avatar-lg" id="avatarEdit" style="width:64px;height:64px;"></div>
+            <div class="avatar-cam-badge" style="width:22px;height:22px;">
+              <svg viewBox="0 0 24 24" style="width:10px;height:10px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+          </div>
+          <span style="font-size:12px;color:var(--text-muted);font-weight:600;">Toca la foto para cambiarla</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre completo</label>
+        <input type="text" id="editFullName" class="form-input" placeholder="Ej: Juan Pérez">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo electrónico <span style="text-transform:none;color:var(--text-muted);font-weight:600;">· no editable</span></label>
+        <input type="email" id="editEmail" class="form-input" readonly tabindex="-1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Número de celular <span style="text-transform:none;color:var(--text-muted);font-weight:600;">· no editable</span></label>
+        <input type="tel" id="editPhone" class="form-input" readonly tabindex="-1">
+      </div>
+      <button class="btn-modal" id="editProfileSubmit" onclick="saveProfile()">
+        <span class="btn-text">Guardar cambios</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+ </div>
 </div>
 
 <nav class="floating-nav" id="floatingNav">
@@ -1602,36 +1791,105 @@ async function updateUI() {
   if (!currentUser) return;
   
   currentBalance = await calculateBalance(currentUser.id);
-  document.getElementById('balanceAmount').textContent = formatCurrency(currentBalance);
-  
+  document.getElementById('balanceAmount').textContent = balanceVisible ? formatCurrency(currentBalance) : '••';
+
   document.getElementById('statBalance').textContent = formatCurrency(currentBalance);
   document.getElementById('statTransactions').textContent = allTransactions.length;
-  
-  if (userProfile) {
-    const displayName = userProfile.full_name || currentUser.email.split('@')[0];
-    document.getElementById('greetingName').textContent = displayName;
-    document.getElementById('profileName').textContent = displayName;
-    document.getElementById('profileEmail').textContent = currentUser.email;
-    
-    if (userProfile.avatar_url) {
-      document.getElementById('avatarSmall').style.backgroundImage = `url('${userProfile.avatar_url}')`;
-      document.getElementById('avatarLarge').style.backgroundImage = `url('${userProfile.avatar_url}')`;
-    }
+
+  const local = getLocalProfile();
+  const displayName = local.full_name || userProfile?.full_name || currentUser.email.split('@')[0];
+  const email = local.email || currentUser.email || '';
+  const phone = local.phone || userProfile?.phone || '';
+  const avatar = local.avatar || userProfile?.avatar_url || '';
+
+  document.getElementById('greetingName').textContent = displayName;
+  document.getElementById('profileName').textContent = displayName;
+  document.getElementById('profileEmail').textContent = email;
+  const infoEmail = document.getElementById('profileInfoEmail');
+  if (infoEmail) infoEmail.textContent = email || 'Sin correo';
+  document.getElementById('profilePhone').textContent = phone ? `+591 ${phone}` : 'Sin número registrado';
+
+  const cardHolder = document.getElementById('cardHolderName');
+  if (cardHolder) cardHolder.textContent = (displayName || 'USUARIO').toUpperCase();
+
+  if (avatar) {
+    setAvatarImages(avatar);
   }
-  
+
   renderRecent();
   renderFullHistory();
+}
+
+// ============ PERFIL LOCAL ============
+const PROFILE_KEY = 'rayito_profile_';
+function getLocalProfile() {
+  if (!currentUser) return {};
+  try {
+    return JSON.parse(localStorage.getItem(PROFILE_KEY + currentUser.id)) || {};
+  } catch (e) {
+    return {};
+  }
+}
+function setLocalProfile(data) {
+  if (!currentUser) return;
+  const merged = Object.assign(getLocalProfile(), data);
+  localStorage.setItem(PROFILE_KEY + currentUser.id, JSON.stringify(merged));
+}
+function setAvatarImages(url) {
+  ['avatarSmall','avatarLarge','avatarEdit'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.backgroundImage = `url('${url}')`;
+  });
+}
+
+function openEditProfileSheet() {
+  const local = getLocalProfile();
+  document.getElementById('editFullName').value = local.full_name || userProfile?.full_name || '';
+  // Correo y celular son de solo lectura (no editables)
+  document.getElementById('editEmail').value = local.email || currentUser?.email || '';
+  document.getElementById('editPhone').value = local.phone || userProfile?.phone || '';
+  openSheet('editProfileSheet');
+}
+
+async function saveProfile() {
+  const fullName = document.getElementById('editFullName').value.trim();
+
+  if (!fullName) { showToast('Ingresa tu nombre', 'error'); return; }
+
+  const submitBtn = document.getElementById('editProfileSubmit');
+  submitBtn.classList.add('loading');
+  submitBtn.disabled = true;
+
+  // Solo se guarda el nombre (la foto se guarda al seleccionarla). Guardado local siempre.
+  setLocalProfile({ full_name: fullName });
+
+  // Intentar sincronizar con Supabase (best-effort)
+  try {
+    await window.supabase.from('user_profiles').update({ full_name: fullName }).eq('id', currentUser.id);
+    if (userProfile) userProfile.full_name = fullName;
+  } catch (error) {
+    console.error('No se pudo sincronizar el perfil (guardado local aplicado):', error);
+  }
+
+  submitBtn.classList.remove('loading');
+  submitBtn.disabled = false;
+  closeSheet('editProfileSheet');
+  showToast('Perfil actualizado');
+  await updateUI();
 }
 
 // ============ SALDO ============
 function toggleBalanceVisibility() {
   balanceVisible = !balanceVisible;
   document.getElementById('balanceAmount').textContent = balanceVisible ? formatCurrency(currentBalance) : '••••••';
-  const eye = document.getElementById('eyeIcon');
-  eye.innerHTML = balanceVisible
-    ? `<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>`
-    : `<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a21.6 21.6 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+  document.getElementById('eyeIcon').innerHTML = balanceVisible ? EYE_OPEN : EYE_CLOSED;
+  const headerEye = document.getElementById('headerEyeIcon');
+  if (headerEye) headerEye.innerHTML = balanceVisible ? EYE_OPEN : EYE_CLOSED;
+  const headerLabel = document.getElementById('headerEyeLabel');
+  if (headerLabel) headerLabel.textContent = balanceVisible ? 'Ocultar saldo' : 'Mostrar saldo';
 }
+const EYE_OPEN = `<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>`;
+const EYE_CLOSED = `<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a21.6 21.6 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
 
 // ============ AVATAR ============
 function openAvatarPicker() {
@@ -1645,8 +1903,9 @@ document.getElementById('avatarInput').addEventListener('change', async function
   const reader = new FileReader();
   reader.onload = async function(ev) {
     const avatarDataUrl = ev.target.result;
-    document.getElementById('avatarSmall').style.backgroundImage = `url('${avatarDataUrl}')`;
-    document.getElementById('avatarLarge').style.backgroundImage = `url('${avatarDataUrl}')`;
+    // Guardado local inmediato (no depende de la red)
+    setLocalProfile({ avatar: avatarDataUrl });
+    setAvatarImages(avatarDataUrl);
     
     try {
       const fileExt = file.name.split('.').pop();
