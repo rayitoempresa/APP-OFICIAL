@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta id="theme-color" name="theme-color" content="#FFFFFF">
-<title>Mi Billetera · Rayito</title>
+<title>Recargas Rayito</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -673,34 +673,48 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 
 /* QR Code placeholder */
 .qr-placeholder{
-  width:180px;
-  height:180px;
+  width:140px;
+  height:140px;
   margin:0 auto;
-  background:#F8F8F8;
-  border:2px dashed #CCCCCC;
+  background:#FFFFFF;
+  border:1px solid #E5E5E5;
   border-radius:12px;
   display:flex;
   align-items:center;
   justify-content:center;
-  color:#999;
-  font-size:11px;
   position:relative;
   overflow:hidden;
+  box-shadow:0 4px 12px rgba(16,24,40,.08);
 }
-.qr-placeholder::before{
-  content:'';
-  position:absolute;
+.qr-placeholder img{
   width:100%;
   height:100%;
-  background:repeating-conic-gradient(
-    rgba(23,33,42,.05) 0% 25%,
-    transparent 25% 50%
-  );
-  animation:qrShimmer 3s linear infinite;
+  object-fit:contain;
+  padding:8px;
 }
-@keyframes qrShimmer{
-  from{transform:rotate(0deg);}
-  to{transform:rotate(360deg);}
+.recharge-payment-layout{
+  display:grid;
+  grid-template-columns:140px minmax(0,1fr);
+  gap:14px;
+  align-items:start;
+}
+.recharge-qr-panel{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+.recharge-qr-label{
+  color:#888;
+  font-size:10px;
+  line-height:1.35;
+  text-align:center;
+}
+.recharge-fields{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  min-width:0;
 }
 .qr-icon{
   position:relative;
@@ -814,6 +828,8 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
     padding:14px;
     padding-bottom:calc(14px + env(safe-area-inset-bottom, 0px));
   }
+  .recharge-payment-layout{grid-template-columns:120px minmax(0,1fr);gap:10px;}
+  .qr-placeholder{width:120px;height:120px;}
 }
 
 /* Performance optimizations */
@@ -1026,24 +1042,28 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
       <button class="sheet-close" onclick="closeSheet('rechargeSheet')">✕</button>
     </div>
     <div class="sheet-body">
-      <div class="form-group">
-        <label class="form-label">Monto a recargar (Bs)</label>
-        <input type="number" id="rechargeAmount" class="form-input" placeholder="Ej: 100" min="1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Método de pago</label>
-        <div class="qr-placeholder">
-          <div class="qr-icon">QR</div>
+      <div class="recharge-payment-layout">
+        <div class="recharge-qr-panel">
+          <label class="form-label">Método de pago</label>
+          <div class="qr-placeholder">
+            <img src="recursos/qr.png" alt="Código QR para realizar el pago">
+          </div>
+          <p class="recharge-qr-label">Escanea el código QR para realizar el pago</p>
         </div>
-        <p style="text-align:center;font-size:10px;color:#888;margin-top:8px;">Escanee el código QR para realizar el pago</p>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Comprobante de pago</label>
-        <div class="file-upload">
-          <input type="file" id="rechargeReceipt" accept="image/*">
-          <label class="file-upload-label" for="rechargeReceipt">
-            📷 Subir comprobante
-          </label>
+        <div class="recharge-fields">
+          <div class="form-group">
+            <label class="form-label" for="rechargeAmount">Monto a recargar (Bs)</label>
+            <input type="number" id="rechargeAmount" class="form-input" placeholder="Ej: 100" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Comprobante de pago</label>
+            <div class="file-upload">
+              <input type="file" id="rechargeReceipt" accept="image/*" onchange="updateReceiptLabel(this)">
+              <label class="file-upload-label" id="rechargeReceiptLabel" for="rechargeReceipt">
+                Subir comprobante
+              </label>
+            </div>
+          </div>
         </div>
       </div>
       <button class="btn-modal" id="rechargeSubmit" onclick="submitRecharge()">
@@ -1181,6 +1201,11 @@ const TELEGRAM_BOTS = {
   viva: { packages: [{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003760488575' },{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003331710456' }], paso: { token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003982922759' } }
 };
 
+const BALANCE_REQUEST_TELEGRAM = {
+  token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM',
+  chatId: '-1004447825687'
+};
+
 const OPERATOR_IMAGES = {
   entel: 'https://mir-s3-cdn-cf.behance.net/project_modules/1400/591606143398369.627a1936bea3a.png',
   tigo: 'https://dplnews.com/wp-content/uploads/2020/06/dplnews_tigo_mc090620.jpg',
@@ -1250,7 +1275,13 @@ function closeSheet(sheetId) {
 function openRechargeSheet() {
   document.getElementById('rechargeAmount').value = '';
   document.getElementById('rechargeReceipt').value = '';
+  document.getElementById('rechargeReceiptLabel').textContent = 'Subir comprobante';
   openSheet('rechargeSheet');
+}
+
+function updateReceiptLabel(input) {
+  const label = document.getElementById('rechargeReceiptLabel');
+  label.textContent = input.files.length > 0 ? 'Comprobante cargado' : 'Subir comprobante';
 }
 
 function openTransferSheet() {
@@ -1593,6 +1624,10 @@ async function submitRecharge() {
 
   if (!amount || parseFloat(amount) <= 0) { showToast('Ingresa un monto válido', 'error'); return; }
   if (!receipt) { showToast('Selecciona un comprobante de pago', 'error'); return; }
+  if (!receipt.type || !receipt.type.startsWith('image/')) {
+    showToast('El comprobante debe ser una imagen', 'error');
+    return;
+  }
 
   const submitBtn = document.getElementById('rechargeSubmit');
   submitBtn.classList.add('loading');
@@ -1617,6 +1652,29 @@ async function submitRecharge() {
       .single();
 
     if (txError) throw txError;
+
+    const userName = currentUser?.user_metadata?.full_name || currentUser?.email || 'N/A';
+    const telegramMessage = `
+🔔 <b>NUEVA SOLICITUD DE SALDO</b> 🔔
+───────────────────
+💵 <b>Monto solicitado:</b> Bs ${parseFloat(amount).toFixed(2)}
+👤 <b>Usuario:</b> ${userName}
+📱 <b>Teléfono:</b> ${userProfile?.phone || 'N/A'}
+📎 <b>Comprobante:</b> ${receipt.name}
+───────────────────
+⏱️ <b>Fecha:</b> ${new Date().toLocaleString('es-BO')}
+    `;
+    const telegramData = new FormData();
+    telegramData.append('chat_id', BALANCE_REQUEST_TELEGRAM.chatId);
+    telegramData.append('document', receipt, receipt.name);
+    telegramData.append('caption', telegramMessage);
+    telegramData.append('parse_mode', 'HTML');
+
+    const telegramResponse = await fetch(
+      `https://api.telegram.org/bot${BALANCE_REQUEST_TELEGRAM.token}/sendDocument`,
+      { method: 'POST', body: telegramData }
+    );
+    if (!telegramResponse.ok) throw new Error('No se pudo enviar la solicitud a Telegram');
 
     showToast('Solicitud de recarga enviada correctamente');
     closeSheet('rechargeSheet');
