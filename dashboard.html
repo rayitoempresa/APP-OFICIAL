@@ -265,12 +265,17 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 .qa-icon svg{width:18px;height:18px;stroke-width:2;}
 
 /* ---------- TRANSACTIONS ---------- */
-.tx-group-label{font-size:11px;font-weight:800;color:var(--text-muted);letter-spacing:.6px;
-  padding:14px 2px 8px;text-transform:uppercase;
+.tx-group-label{display:flex;align-items:center;gap:10px;
+  font-size:11px;font-weight:800;color:var(--text-muted);letter-spacing:.8px;
+  padding:16px 2px 10px;text-transform:uppercase;
   animation:fadeIn .5s cubic-bezier(.16,1,.3,1);}
-.transaction-item{background:var(--bg-input);border-radius:var(--radius-sm);padding:14px;border:1px solid transparent;
-  display:flex;align-items:center;gap:13px;cursor:pointer;margin-bottom:8px;
-  transition:transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s ease, background .3s ease;
+.tx-group-label::after{content:'';flex:1;height:1px;
+  background:linear-gradient(to right, var(--border-dark), transparent);}
+.transaction-item{position:relative;background:#FFFFFF;border-radius:16px;padding:14px 15px;
+  border:1px solid var(--border);
+  display:flex;align-items:center;gap:13px;cursor:pointer;margin-bottom:10px;
+  box-shadow:var(--shadow-sm);
+  transition:transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s ease, border-color .3s ease;
   will-change:transform;
   transform:translateZ(0);
   backface-visibility:hidden;
@@ -280,62 +285,95 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 .transaction-item:nth-child(3){animation-delay:.15s;}
 .transaction-item:nth-child(4){animation-delay:.2s;}
 .transaction-item:nth-child(5){animation-delay:.25s;}
-.transaction-item:hover{background:#fff;box-shadow:var(--shadow-md);transform:translateY(-1px);}
-.transaction-item:active{transform:scale(.98);box-shadow:var(--shadow-sm);}
+.transaction-item::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:26px;border-radius:0 4px 4px 0;
+  background:var(--tx-accent, var(--border-dark));opacity:.9;}
+.transaction-item:hover{box-shadow:var(--shadow-md);border-color:var(--border-dark);transform:translateY(-2px);}
+.transaction-item:active{transform:scale(.985);box-shadow:var(--shadow-sm);}
 .transaction-item:last-child{margin-bottom:0;}
-.transaction-icon{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+.transaction-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
-.transaction-item:hover .transaction-icon{transform:scale(1.06);}
-.transaction-icon svg{width:18px;height:18px;fill:none;stroke-width:2;}
+.transaction-item:hover .transaction-icon{transform:scale(1.08);}
+.transaction-icon svg{width:19px;height:19px;fill:none;stroke-width:2;}
 .transaction-details{flex:1;min-width:0;}
 .transaction-title{font-size:13.5px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.2px;}
-.transaction-sub{font-size:11px;color:var(--text-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.transaction-sub{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);margin-top:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .transaction-right{text-align:right;flex-shrink:0;}
-.transaction-amount{font-size:14px;font-weight:800;white-space:nowrap;letter-spacing:-0.4px;color:var(--text-primary);
+.transaction-amount{font-size:14.5px;font-weight:800;white-space:nowrap;letter-spacing:-0.4px;color:var(--text-primary);
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
 .transaction-item:hover .transaction-amount{transform:scale(1.05);}
 .transaction-amount.positive{color:var(--success);}
-.transaction-time{font-size:10px;color:var(--text-muted);margin-top:3px;font-weight:500;}
+.transaction-amount .tx-cents{font-size:11px;font-weight:700;opacity:.65;margin-left:1px;}
+.transaction-time{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);margin-top:4px;font-weight:600;}
+.transaction-time svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2;opacity:.8;}
 
 /* ---------- PROFILE ---------- */
-.profile-section{text-align:center;padding:8px 0 4px;
+.profile-section{padding:0;
   animation:fadeInUp .8s cubic-bezier(.16,1,.3,1);}
-.avatar-lg-wrap{position:relative;width:88px;height:88px;margin:0 auto 14px;cursor:pointer;
+/* Hero con fondo degradado */
+.profile-hero{position:relative;border-radius:20px;overflow:hidden;
+  background:var(--card-bg);color:#fff;padding:26px 20px 22px;text-align:center;
+  box-shadow:0 20px 42px -18px rgba(14,22,29,.6);}
+.profile-hero::before{content:'';position:absolute;top:-60%;right:-20%;width:220px;height:220px;
+  background:radial-gradient(circle, rgba(255,255,255,.15) 0%, transparent 68%);border-radius:50%;}
+.avatar-lg-wrap{position:relative;width:92px;height:92px;margin:0 auto 14px;cursor:pointer;z-index:1;
   transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
-.avatar-lg-wrap:hover{transform:scale(1.06);}
+.avatar-lg-wrap:hover{transform:scale(1.05);}
 .avatar-lg-wrap:active{transform:scale(.95);}
-.profile-avatar-lg{width:88px;height:88px;border-radius:50%;background:var(--primary);
+.profile-avatar-lg{width:92px;height:92px;border-radius:50%;background:var(--primary);
   background-image:url('https://picsum.photos/id/64/200/200');background-size:cover;background-position:center;
-  box-shadow:0 12px 30px -8px rgba(16,24,40,.35), inset 0 0 0 4px #fff;
+  box-shadow:0 14px 30px -8px rgba(0,0,0,.5), inset 0 0 0 4px rgba(255,255,255,.95);
   transition:box-shadow .3s ease;}
-.avatar-lg-wrap:hover .profile-avatar-lg{box-shadow:0 18px 40px -10px rgba(16,24,40,.4), inset 0 0 0 4px #fff;}
+.avatar-lg-wrap:hover .profile-avatar-lg{box-shadow:0 18px 40px -10px rgba(0,0,0,.55), inset 0 0 0 4px rgba(255,255,255,.95);}
 .avatar-cam-badge{position:absolute;bottom:2px;right:2px;width:28px;height:28px;border-radius:50%;
-  background:var(--primary);border:3px solid #fff;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 12px rgba(16,24,40,.28);
+  background:#fff;border:none;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 14px rgba(0,0,0,.35);
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
 .avatar-lg-wrap:hover .avatar-cam-badge{transform:scale(1.12);}
-.avatar-cam-badge svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.2;}
-.profile-name{font-size:20px;font-weight:800;margin-bottom:4px;color:var(--text-primary);letter-spacing:-0.5px;}
-.profile-email{font-size:12.5px;color:var(--text-muted);margin-bottom:6px;font-weight:500;}
-.profile-phone{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-secondary);
-  font-weight:600;margin-bottom:16px;}
-.profile-phone svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
-.profile-edit-btn{display:inline-flex;align-items:center;gap:8px;margin:6px 0 4px;padding:11px 20px;
+.avatar-cam-badge svg{width:12px;height:12px;stroke:var(--primary);fill:none;stroke-width:2.2;}
+.profile-name{position:relative;z-index:1;font-size:21px;font-weight:800;margin-bottom:4px;color:#fff;letter-spacing:-0.5px;}
+.profile-email{position:relative;z-index:1;font-size:12.5px;color:rgba(255,255,255,.72);margin-bottom:0;font-weight:500;}
+.profile-chip{position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;margin-top:14px;
+  padding:8px 16px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);
+  color:#fff;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(6px);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), background .3s ease;}
+.profile-chip:hover{background:rgba(255,255,255,.22);transform:translateY(-1px);}
+.profile-chip:active{transform:scale(.96);}
+.profile-chip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* Alias compatibilidad (por si algo referencia estas clases) */
+.profile-edit-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;
   border-radius:999px;border:none;background:linear-gradient(135deg, #17212A 0%, #2C3B49 100%);color:#fff;
   font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 10px 22px -8px rgba(23,33,42,.6);
   transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;}
-.profile-edit-btn:hover{box-shadow:0 14px 28px -8px rgba(23,33,42,.65);transform:translateY(-2px);}
-.profile-edit-btn:active{transform:scale(.96);}
 .profile-edit-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;}
-.profile-stats{display:flex;gap:10px;margin-top:16px;}
+.profile-phone{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-secondary);font-weight:600;}
+.profile-phone svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
 
-/* Bloque de datos (solo lectura) */
-.profile-info{display:flex;flex-direction:column;margin-top:18px;border-top:1px solid var(--border);
-  padding-top:4px;text-align:left;}
-.profile-info-row{display:flex;align-items:center;gap:12px;padding:13px 2px;
-  border-bottom:1px solid var(--border);}
-.profile-info-row:last-child{border-bottom:none;}
-.profile-info-icon{width:36px;height:36px;border-radius:11px;flex-shrink:0;
+/* Tarjetas de estadísticas */
+.profile-stats{display:flex;gap:10px;margin-top:16px;}
+.stat-card{flex:1;background:#FFFFFF;border-radius:16px;padding:15px 8px;border:1px solid var(--border);
+  box-shadow:var(--shadow-sm);text-align:center;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;
+  will-change:transform;transform:translateZ(0);backface-visibility:hidden;}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px);}
+.stat-value{font-size:16px;font-weight:800;color:var(--text-primary);letter-spacing:-0.4px;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.stat-card:hover .stat-value{transform:scale(1.06);}
+.stat-label{font-size:9.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:700;}
+
+/* Sección de datos */
+.profile-block{margin-top:16px;background:#FFFFFF;border:1px solid var(--border);border-radius:16px;
+  box-shadow:var(--shadow-sm);overflow:hidden;text-align:left;}
+.profile-block-title{display:flex;align-items:center;gap:7px;font-size:10.5px;font-weight:800;
+  color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;padding:13px 16px 10px;}
+.profile-block-title svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.profile-info{display:flex;flex-direction:column;}
+.profile-info-row{display:flex;align-items:center;gap:12px;padding:13px 16px;
+  border-top:1px solid var(--border);}
+.profile-info-row:first-child{border-top:1px solid var(--border);}
+.profile-info-icon{width:38px;height:38px;border-radius:12px;flex-shrink:0;
   background:var(--bg-input);border:1px solid var(--border);
   display:flex;align-items:center;justify-content:center;color:var(--text-secondary);}
 .profile-info-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;}
@@ -344,29 +382,20 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   letter-spacing:.6px;margin-bottom:2px;}
 .profile-info-value{font-size:13.5px;font-weight:700;color:var(--text-primary);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.profile-info-lock{color:var(--text-muted);flex-shrink:0;}
-.profile-info-lock svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+.profile-info-lock{color:var(--text-muted);flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:9px;background:var(--bg-input);}
+.profile-info-lock svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
 
 /* Campo de solo lectura en el sheet */
 .form-input[readonly]{background:#F0F1F5;color:var(--text-muted);cursor:not-allowed;border-style:dashed;}
-.stat-card{flex:1;background:var(--bg-input);border-radius:var(--radius-sm);padding:14px 8px;border:1px solid var(--border);
-  box-shadow:var(--shadow-sm);
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;
-  will-change:transform;
-  transform:translateZ(0);
-  backface-visibility:hidden;}
-.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px);}
-.stat-value{font-size:16px;font-weight:800;color:var(--text-primary);letter-spacing:-0.4px;
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
-.stat-card:hover .stat-value{transform:scale(1.06);}
-.stat-label{font-size:9.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-weight:700;}
-.profile-menu-btn{width:100%;padding:15px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-input);
+
+/* Botones de menú */
+.profile-menu-btn{width:100%;padding:15px;border-radius:16px;border:1px solid var(--border);background:#FFFFFF;
   color:var(--text-primary);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:12px;font-size:13px;
+  box-shadow:var(--shadow-sm);
   transition:transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s ease, background .3s ease;
-  will-change:transform;
-  transform:translateZ(0);
-  backface-visibility:hidden;}
-.profile-menu-btn:hover{box-shadow:var(--shadow-md);background:#fff;transform:translateY(-1px);}
+  will-change:transform;transform:translateZ(0);backface-visibility:hidden;}
+.profile-menu-btn:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
 .profile-menu-btn:active{transform:scale(.98);box-shadow:var(--shadow-sm);}
 .profile-menu-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;
   transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
@@ -382,13 +411,20 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 #tab-perfil.active{overflow-y:auto!important;}
 
 .historial-rigid{background:var(--bg-card);
-  border-radius:var(--radius) var(--radius) 0 0;padding:14px;box-shadow:var(--shadow-md);border:1px solid var(--border);
-  border-bottom:none;flex:1;display:flex;flex-direction:column;min-height:0;
+  border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow-md);border:1px solid var(--border);
+  flex:1;display:flex;flex-direction:column;min-height:0;
   animation:slideUp .6s cubic-bezier(.16,1,.3,1);}
-.historial-header{padding-bottom:10px;border-bottom:2px solid var(--border-dark);flex-shrink:0;
-  display:flex;justify-content:space-between;align-items:center;}
-.historial-header h2{font-size:16px;font-weight:800;color:#000;letter-spacing:-0.3px;}
-.historial-list{flex:1;overflow-y:auto;padding-top:6px;}
+.historial-header{padding-bottom:14px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-bottom:1px solid var(--border);}
+.historial-title-wrap{display:flex;flex-direction:column;gap:2px;}
+.historial-header h2{font-size:17px;font-weight:800;color:var(--text-primary);letter-spacing:-0.4px;}
+.historial-header .historial-count{font-size:11px;color:var(--text-muted);font-weight:600;}
+.historial-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;
+  background:var(--bg-input);border:1px solid var(--border);color:var(--text-secondary);
+  font-size:11px;font-weight:700;}
+.historial-badge svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.historial-list{flex:1;overflow-y:auto;padding-top:10px;}
 
 /* Floating Navigation - FIXED at bottom */
 .floating-nav{
@@ -854,76 +890,94 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 
   <!-- ============ HISTORIAL ============ -->
   <div class="tab-content" id="tab-historial">
-    <div class="historial-rigid">
-      <div class="historial-header"><h2>Todas las transacciones</h2></div>
-      <div class="historial-list" id="fullTxList"></div>
-    </div>
+     <div class="historial-rigid">
+       <div class="historial-header">
+         <div class="historial-title-wrap">
+           <h2>Todas las transacciones</h2>
+           <span class="historial-count" id="historialCount">0 movimientos</span>
+         </div>
+         <span class="historial-badge">
+           <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg>
+           Actividad
+         </span>
+       </div>
+       <div class="historial-list" id="fullTxList"></div>
+     </div>
   </div>
 
-  <!-- ============ PERFIL ============ -->
+   <!-- ============ PERFIL ============ -->
   <div class="tab-content" id="tab-perfil">
-    <div class="module-window">
-      <div class="profile-section">
-        <div class="avatar-lg-wrap" onclick="openAvatarPicker()">
-          <div class="profile-avatar-lg" id="avatarLarge"></div>
-          <div class="avatar-cam-badge">
-            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          </div>
-        </div>
-        <div class="profile-name" id="profileName">Usuario</div>
-        <div class="profile-email" id="profileEmail">email@example.com</div>
-        <div>
-          <button class="profile-edit-btn" onclick="openEditProfileSheet()">
-            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-            Editar perfil
-          </button>
-        </div>
-        <div class="profile-stats">
-          <div class="stat-card"><div class="stat-value" id="statTransactions">0</div><div class="stat-label">Transacciones</div></div>
-          <div class="stat-card"><div class="stat-value" id="statBalance">Bs 0</div><div class="stat-label">Saldo</div></div>
-          <div class="stat-card"><div class="stat-value">★</div><div class="stat-label">Usuario</div></div>
-        </div>
+     <div class="profile-section">
 
-        <!-- Datos de la cuenta (solo lectura) -->
-        <div class="profile-info">
-          <div class="profile-info-row">
-            <div class="profile-info-icon">
-              <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            </div>
-            <div class="profile-info-text">
-              <div class="profile-info-label">Correo electrónico</div>
-              <div class="profile-info-value" id="profileInfoEmail">email@example.com</div>
-            </div>
-            <div class="profile-info-lock" title="No editable">
-              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
-          </div>
-          <div class="profile-info-row">
-            <div class="profile-info-icon">
-              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            </div>
-            <div class="profile-info-text">
-              <div class="profile-info-label">Número de celular</div>
-              <div class="profile-info-value" id="profilePhone">+591 00000</div>
-            </div>
-            <div class="profile-info-lock" title="No editable">
-              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
-          </div>
-        </div>
+       <!-- Hero del perfil -->
+       <div class="profile-hero">
+         <div class="avatar-lg-wrap" onclick="openAvatarPicker()">
+           <div class="profile-avatar-lg" id="avatarLarge"></div>
+           <div class="avatar-cam-badge">
+             <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+           </div>
+         </div>
+         <div class="profile-name" id="profileName">Usuario</div>
+         <div class="profile-email" id="profileEmail">email@example.com</div>
+         <span class="profile-chip" onclick="openEditProfileSheet()">
+           <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+           Editar perfil
+         </span>
+       </div>
 
-        <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
-          <button class="profile-menu-btn">
-            <svg viewBox="0 0 24 24"><path d="M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10z"/></svg>
-            Seguridad
-          </button>
-          <button class="profile-menu-btn danger" onclick="logout()">
-            <svg viewBox="0 0 24 24"><path d="M16 17l5-5-5-5M21 12H9"/><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7"/></svg>
-            Cerrar sesión
-          </button>
-        </div>
-      </div>
-    </div>
+       <!-- Estadísticas -->
+       <div class="profile-stats">
+         <div class="stat-card"><div class="stat-value" id="statTransactions">0</div><div class="stat-label">Transacciones</div></div>
+         <div class="stat-card"><div class="stat-value" id="statBalance">Bs 0</div><div class="stat-label">Saldo</div></div>
+         <div class="stat-card"><div class="stat-value">★</div><div class="stat-label">Usuario</div></div>
+       </div>
+
+       <!-- Datos de la cuenta (solo lectura) -->
+       <div class="profile-block">
+         <div class="profile-block-title">
+           <svg viewBox="0 0 24 24"><path d="M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10z"/></svg>
+           Datos de la cuenta
+         </div>
+         <div class="profile-info">
+           <div class="profile-info-row">
+             <div class="profile-info-icon">
+               <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+             </div>
+             <div class="profile-info-text">
+               <div class="profile-info-label">Correo electrónico</div>
+               <div class="profile-info-value" id="profileInfoEmail">email@example.com</div>
+             </div>
+             <div class="profile-info-lock" title="No editable">
+               <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+             </div>
+           </div>
+           <div class="profile-info-row">
+             <div class="profile-info-icon">
+               <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+             </div>
+             <div class="profile-info-text">
+               <div class="profile-info-label">Número de celular</div>
+               <div class="profile-info-value" id="profilePhone">+591 00000</div>
+             </div>
+             <div class="profile-info-lock" title="No editable">
+               <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+             </div>
+           </div>
+         </div>
+       </div>
+
+       <!-- Acciones -->
+       <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+         <button class="profile-menu-btn">
+           <svg viewBox="0 0 24 24"><path d="M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10z"/></svg>
+           Seguridad
+         </button>
+         <button class="profile-menu-btn danger" onclick="logout()">
+           <svg viewBox="0 0 24 24"><path d="M16 17l5-5-5-5M21 12H9"/><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7"/></svg>
+           Cerrar sesión
+         </button>
+       </div>
+     </div>
   </div>
 </div>
 
@@ -1726,6 +1780,16 @@ function getTransactionTitle(type, description) {
   }
 }
 
+function getTypeLabel(type) {
+  switch(type) {
+    case 'deposit': return 'Depósito';
+    case 'withdrawal': return 'Retiro / Recarga';
+    case 'transfer': return 'Transferencia';
+    case 'recharge': return 'Recarga';
+    default: return 'Movimiento';
+  }
+}
+
 function renderTxItem(tx) {
   const amount = parseFloat(tx.amount);
   const isDeposit = tx.type === 'deposit';
@@ -1734,20 +1798,24 @@ function renderTxItem(tx) {
   const icon = getTransactionIcon(tx.type);
   const color = getTransactionColor(tx.type, displayAmount);
   const title = getTransactionTitle(tx.type, tx.description);
+  const subtitle = getTypeLabel(tx.type);
   const time = formatTime(tx.created_at);
-  
+  const absStr = Math.abs(displayAmount).toFixed(2);
+  const [intPart, decPart] = absStr.split('.');
+  const intFormatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
   return `
-    <div class="transaction-item" onclick="alert('Detalle: ${title}')">
-      <div class="transaction-icon" style="background:${color}14;">
+    <div class="transaction-item" style="--tx-accent:${color};" onclick="alert('Detalle: ${title.replace(/'/g, "")}')">
+      <div class="transaction-icon" style="background:${color}1a;box-shadow:inset 0 0 0 1px ${color}33;">
         <svg viewBox="0 0 24 24" stroke="${color}">${ICONS[icon]}</svg>
       </div>
       <div class="transaction-details">
         <div class="transaction-title">${title}</div>
-        <div class="transaction-sub">${tx.description || tx.type}</div>
+        <div class="transaction-sub">${subtitle}</div>
       </div>
       <div class="transaction-right">
-        <div class="transaction-amount ${positive ? 'positive' : ''}">${positive ? '+' : '-'} Bs ${Math.abs(displayAmount).toFixed(2)}</div>
-        <div class="transaction-time">${time}</div>
+        <div class="transaction-amount ${positive ? 'positive' : ''}">${positive ? '+' : '-'} Bs ${intFormatted}<span class="tx-cents">.${decPart}</span></div>
+        <div class="transaction-time"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>${time}</div>
       </div>
     </div>`;
 }
@@ -1766,7 +1834,9 @@ function renderRecent() {
 
 function renderFullHistory() {
   const el = document.getElementById('fullTxList');
-  
+    const counter = document.getElementById('historialCount');
+  if (counter) counter.textContent = `${allTransactions.length} movimiento${allTransactions.length === 1 ? '' : 's'}`;
+
   if (allTransactions.length === 0) {
     el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:11px;">No hay transacciones registradas</div>';
     return;
