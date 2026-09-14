@@ -44,9 +44,10 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
   background-image:radial-gradient(120% 60% at 50% -10%, #E4E8F2 0%, transparent 55%);}
-.wallet-container{width:100%;max-width:420px;display:flex;flex-direction:column;gap:16px;
-  position:relative;overflow-y:auto;overflow-x:hidden;height:100vh;max-height:100vh;
-  padding:18px;padding-bottom:112px;
+.mobile-app-container{width:100%;max-width:420px;display:flex;flex-direction:column;
+  position:relative;overflow:hidden;height:100vh;height:100dvh;max-height:100dvh;}
+.mobile-content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
+  display:flex;flex-direction:column;gap:16px;padding:18px;padding-bottom:112px;
   will-change:transform;
   transform:translateZ(0);
   backface-visibility:hidden;}
@@ -480,6 +481,40 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   box-shadow:inset 0 2px 4px rgba(0,0,0,.08);}
 .floating-nav .nav-item.active::before{width:60%;}
 
+/* Navegacion movil fija al viewport */
+.mobile-bottom-nav{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  width:100%;
+  max-width:420px;
+  height:calc(60px + env(safe-area-inset-bottom, 0px));
+  margin:0 auto;
+  padding:0 0 env(safe-area-inset-bottom, 0px);
+  border-radius:0;
+  border:0;
+  border-top:1px solid #ECEDF1;
+  box-shadow:0 -4px 16px rgba(16,24,40,.08);
+  background:#FFFFFF;
+  z-index:50;
+  transform:none;
+  animation:none;
+}
+.mobile-bottom-nav .nav-item{
+  flex:1;
+  min-width:0;
+  height:60px;
+  padding:0;
+  border-radius:0;
+  gap:4px;
+}
+.mobile-bottom-nav .nav-item svg{width:20px;height:20px;}
+.mobile-bottom-nav .nav-item span{font-size:10px;}
+.mobile-bottom-nav .nav-item:hover,
+.mobile-bottom-nav .nav-item:active{transform:none;}
+.mobile-content{padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px) + 16px);}
+
 /* ---------- BOTTOM SHEET MODAL ---------- */
 .sheet-overlay{
   position:fixed;
@@ -736,16 +771,13 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 
 /* Mobile Optimization */
 @media (max-width:480px){
-  .wallet-container{padding:14px;padding-bottom:104px;}
+  .mobile-content{padding:14px;padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px) + 14px);}
   .debit-card{padding:14px 14px 12px;border-radius:18px;}
   .balance-amount{font-size:24px;}
   .card-chip{width:34px;height:25px;}
   .balance-actions{width:118px;}
   .module-window{padding:14px;border-radius:16px;}
-  .floating-nav{
-    padding:8px 12px;
-    padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px));
-  }
+  .mobile-bottom-nav{padding:0 0 env(safe-area-inset-bottom, 0px);}
   .floating-nav .nav-item{
     padding:5px 8px;
     min-width:40px;
@@ -762,11 +794,8 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 }
 
 @media (max-width:360px){
-  .wallet-container{padding:10px;padding-bottom:96px;}
-  .floating-nav{
-    padding:6px 8px;
-    padding-bottom:calc(6px + env(safe-area-inset-bottom, 0px));
-  }
+  .mobile-content{padding:10px;padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px) + 10px);}
+  .mobile-bottom-nav{padding:0 0 env(safe-area-inset-bottom, 0px);}
   .floating-nav .nav-item{
     padding:4px 6px;
     min-width:35px;
@@ -803,7 +832,8 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 </style>
 </head>
 <body>
-<div class="wallet-container">
+<div class="mobile-app-container">
+<main class="mobile-content">
 
   <!-- ============ INICIO ============ -->
   <div class="tab-content active" id="tab-inicio">
@@ -977,6 +1007,7 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
        </div>
      </div>
   </div>
+</main>
 </div>
 
 <input type="file" id="avatarInput" accept="image/*" style="display:none">
@@ -1102,16 +1133,16 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
  </div>
 </div>
 
-<nav class="floating-nav" id="floatingNav">
-  <button class="nav-item active" data-tab="tab-inicio" onclick="switchTab('tab-inicio', this)" title="Inicio">
+<nav class="mobile-bottom-nav floating-nav" id="floatingNav">
+  <button class="nav-item active" data-view="home" onclick="switchView(this)" title="Inicio">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <span>Inicio</span>
   </button>
-  <button class="nav-item" data-tab="tab-historial" onclick="switchTab('tab-historial', this)" title="Historial">
+  <button class="nav-item" data-view="transactions" onclick="switchView(this)" title="Historial">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     <span>Historial</span>
   </button>
-  <button class="nav-item" data-tab="tab-perfil" onclick="switchTab('tab-perfil', this)" title="Perfil">
+  <button class="nav-item" data-view="profile" onclick="switchView(this)" title="Perfil">
     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <span>Perfil</span>
   </button>
@@ -2006,6 +2037,16 @@ document.getElementById('avatarInput').addEventListener('change', async function
 });
 
 // ============ NAVEGACIÓN ============
+function switchView(btnElement) {
+  const viewMap = {
+    home: 'tab-inicio',
+    transactions: 'tab-historial',
+    profile: 'tab-perfil'
+  };
+  const tabId = viewMap[btnElement?.dataset.view];
+  if (tabId) switchTab(tabId, btnElement);
+}
+
 function switchTab(tabId, btnElement) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   const selected = document.getElementById(tabId);
