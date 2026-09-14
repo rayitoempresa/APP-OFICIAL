@@ -501,6 +501,11 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   transform:none;
   animation:none;
 }
+.mobile-bottom-nav.floating-nav{
+  padding:0 0 env(safe-area-inset-bottom, 0px);
+  border-radius:0;
+  transform:none;
+}
 .mobile-bottom-nav .nav-item{
   flex:1;
   min-width:0;
@@ -513,7 +518,7 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 .mobile-bottom-nav .nav-item span{font-size:10px;}
 .mobile-bottom-nav .nav-item:hover,
 .mobile-bottom-nav .nav-item:active{transform:none;}
-.mobile-content{padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px) + 16px);}
+.mobile-content{padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px));}
 
 /* ---------- BOTTOM SHEET MODAL ---------- */
 .sheet-overlay{
@@ -771,7 +776,7 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 
 /* Mobile Optimization */
 @media (max-width:480px){
-  .mobile-content{padding:14px;padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px) + 14px);}
+  .mobile-content{padding:14px;padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px));}
   .debit-card{padding:14px 14px 12px;border-radius:18px;}
   .balance-amount{font-size:24px;}
   .card-chip{width:34px;height:25px;}
@@ -794,7 +799,7 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 }
 
 @media (max-width:360px){
-  .mobile-content{padding:10px;padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px) + 10px);}
+  .mobile-content{padding:10px;padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px));}
   .mobile-bottom-nav{padding:0 0 env(safe-area-inset-bottom, 0px);}
   .floating-nav .nav-item{
     padding:4px 6px;
