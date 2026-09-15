@@ -4,11 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#5C6169">
-    <title>Acceso seguro</title>
+    <title>Recargas Rayito</title>
+
+    <!-- ============ PWA ============ -->
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Rayito" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/site.webmanifest" />
+    <!-- ============================== -->
+
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
             --primary: #5C6169;
@@ -296,7 +310,6 @@
             letter-spacing: 0.2px;
         }
 
-        /* Oculto pero funcional */
         .remember-row {
             display: none;
             align-items: center;
@@ -552,6 +565,7 @@
                     setTimeout(() => toast.remove(), 400);
                 }, 3200);
             }
+            window.showToast = showToast;
 
             function showError(message) {
                 const errorElement = document.getElementById('error-message');
@@ -568,7 +582,7 @@
                 const button = document.getElementById(buttonId);
                 const text = document.getElementById(textId);
                 const spinner = document.getElementById(spinnerId);
-                
+
                 if (isLoading) {
                     button.disabled = true;
                     text.textContent = loadingText;
@@ -774,6 +788,34 @@
                 }
             });
         })();
+
+        /* =========================================================
+           PWA - Service Worker + Instalación
+           ========================================================= */
+
+        // Registro del Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
+                    .catch(err => console.error('❌ Error SW:', err));
+            });
+        }
+
+        // Captura del evento de instalación (banner personalizado)
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Puedes mostrar aquí tu propio botón "Instalar Rayito"
+            // Ejemplo: mostrarBotonInstalar();
+            console.log('📲 PWA lista para instalar');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA instalada correctamente');
+            deferredPrompt = null;
+        });
     </script>
 </body>
 </html>
