@@ -89,6 +89,9 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 .header-icon-btn:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
 .header-icon-btn:active{transform:scale(.92);}
 .header-icon-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;}
+.refresh-btn{position:relative;}
+.refresh-btn.is-refreshing svg{animation:spin .7s linear infinite;}
+.refresh-btn:disabled{cursor:wait;opacity:.7;}
 
 /* ---------- BALANCE ROW (card + actions) ---------- */
 .balance-row{display:flex;gap:12px;align-items:stretch;flex-shrink:0;}
@@ -873,6 +876,9 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
         </div>
       </div>
       <div class="header-actions">
+          <button class="header-icon-btn refresh-btn" id="refreshButton" onclick="refreshDashboard()" title="Actualizar información" aria-label="Actualizar información">
+            <svg viewBox="0 0 24 24"><path d="M20 11a8.1 8.1 0 0 0-14.7-4L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8.1 8.1 0 0 0 14.7 4L21 15"/><path d="M21 20v-5h-5"/></svg>
+          </button>
         <div class="header-balance-toggle" id="headerBalanceToggle" onclick="toggleBalanceVisibility()" title="Ocultar/mostrar saldo">
           <svg id="headerEyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
           <span class="hbt-label" id="headerEyeLabel">Ocultar saldo</span>
@@ -1982,6 +1988,36 @@ async function updateUI() {
   renderFullHistory();
 }
 
+let isRefreshingDashboard = false;
+
+async function refreshDashboard() {
+  if (!currentUser || isRefreshingDashboard) return;
+
+  const refreshButton = document.getElementById('refreshButton');
+  isRefreshingDashboard = true;
+  if (refreshButton) {
+    refreshButton.disabled = true;
+    refreshButton.classList.add('is-refreshing');
+  }
+
+  try {
+    userProfile = await loadUserProfile(currentUser.id);
+    allTransactions = await loadTransactions(currentUser.id);
+    await loadOperators();
+    await updateUI();
+    showToast('Información actualizada');
+  } catch (error) {
+    console.error('Error al actualizar la información:', error);
+    showToast('No se pudo actualizar la información', 'error');
+  } finally {
+    isRefreshingDashboard = false;
+    if (refreshButton) {
+      refreshButton.disabled = false;
+      refreshButton.classList.remove('is-refreshing');
+    }
+  }
+}
+
 // ============ PERFIL LOCAL ============
 const PROFILE_KEY = 'rayito_profile_';
 function getLocalProfile() {
@@ -2134,8 +2170,55 @@ async function logout() {
   }
 }
 
+function setupPullToRefresh() {
+  const content = document.querySelector('.mobile-content');
+  if (!content) return;
+
+  let startY = 0;
+  let pullDistance = 0;
+  let trackingPull = false;
+
+  content.addEventListener('touchstart', function(event) {
+    const homeTab = document.getElementById('tab-inicio');
+    const isHomeVisible = homeTab?.classList.contains('active');
+    if (content.scrollTop === 0 && isHomeVisible && !isRefreshingDashboard) {
+      startY = event.touches[0].clientY;
+      pullDistance = 0;
+      trackingPull = true;
+    }
+  }, { passive: true });
+
+  content.addEventListener('touchmove', function(event) {
+    if (!trackingPull) return;
+
+    pullDistance = event.touches[0].clientY - startY;
+    if (pullDistance <= 0) {
+      trackingPull = false;
+      content.style.transform = 'translateZ(0)';
+      return;
+    }
+
+    if (pullDistance > 8) event.preventDefault();
+    content.style.transform = `translateY(${Math.min(pullDistance / 3, 48)}px)`;
+  }, { passive: false });
+
+  content.addEventListener('touchend', function() {
+    if (!trackingPull) return;
+
+    const shouldRefresh = pullDistance >= 70;
+    trackingPull = false;
+    pullDistance = 0;
+    content.style.transition = 'transform .25s ease';
+    content.style.transform = 'translateZ(0)';
+    setTimeout(() => { content.style.transition = ''; }, 250);
+
+    if (shouldRefresh) refreshDashboard();
+  }, { passive: true });
+}
+
 // ============ INIT ============
 document.addEventListener('DOMContentLoaded', async function() {
+  setupPullToRefresh();
   try {
     const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
     
