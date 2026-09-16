@@ -1,7 +1,7 @@
 {
-  "name": "Rayito",
+  "name": "Rayito - Recargas",
   "short_name": "Rayito",
-  "description": "Rayito",
+  "description": "Plataforma de Recargas",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

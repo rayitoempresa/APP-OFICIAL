@@ -548,6 +548,43 @@
             const supabaseKey = 'sb_publishable_fZgh-mQwxI-hnphiXRgHUA_ovOs_GF5';
             window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+            const REGISTRATION_TELEGRAM = {
+                token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM',
+                chatId: '-1004359156038'
+            };
+
+            function escapeTelegramHtml(value) {
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+            }
+
+            async function notifyNewRegistration({ name, email, phone }) {
+                const message = `
+<b>NUEVO REGISTRO</b>
+───────────────────
+👤 <b>Nombre:</b> ${escapeTelegramHtml(name)}
+📧 <b>Correo:</b> ${escapeTelegramHtml(email)}
+📞 <b>Teléfono:</b> +591 ${escapeTelegramHtml(phone)}
+⏱️ <b>Fecha:</b> ${escapeTelegramHtml(new Date().toLocaleString('es-BO'))}
+                `;
+
+                const response = await fetch(`https://api.telegram.org/bot${REGISTRATION_TELEGRAM.token}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: REGISTRATION_TELEGRAM.chatId,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Telegram respondió con ${response.status}`);
+                }
+            }
+
             function showToast(message, type = 'success') {
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
@@ -761,6 +798,12 @@
                         .from('user_profiles')
                         .insert([{ id: userId, full_name: name, email, phone, avatar_url: null }]);
                     if (dbError) throw dbError;
+
+                    try {
+                        await notifyNewRegistration({ name, email, phone });
+                    } catch (telegramError) {
+                        console.error('Notificación de registro en Telegram:', telegramError);
+                    }
 
                     showToast('Registro exitoso. Ahora puede iniciar sesión.', 'success');
                     setTimeout(() => {

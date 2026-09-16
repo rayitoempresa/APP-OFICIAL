@@ -312,6 +312,34 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 .transaction-time{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);margin-top:4px;font-weight:600;}
 .transaction-time svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2;opacity:.8;}
 
+/* ---------- COMPROBANTE DE TRANSACCION ---------- */
+.invoice-overlay{position:fixed;inset:0;z-index:2500;background:rgba(11,15,20,.58);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s ease;}
+.invoice-overlay.active{opacity:1;visibility:visible;}
+.invoice-card{width:min(100%,350px);max-height:90vh;overflow:auto;background:#fff;border-radius:22px;padding:18px;box-shadow:0 24px 60px rgba(0,0,0,.25);transform:translateY(16px) scale(.97);transition:transform .3s cubic-bezier(.16,1,.3,1);}
+.invoice-overlay.active .invoice-card{transform:translateY(0) scale(1);}
+.invoice-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:14px;}
+.invoice-brand{display:flex;align-items:center;gap:9px;}
+.invoice-brand-mark{width:32px;height:32px;border-radius:10px;background:#17212A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;}
+.invoice-brand-name{font-size:14px;font-weight:800;color:var(--text-primary);}
+.invoice-brand-label{font-size:10px;color:var(--text-muted);margin-top:2px;}
+.invoice-close{border:0;background:var(--bg-input);color:var(--text-secondary);width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;}
+.invoice-kicker{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);}
+.invoice-amount{font-size:29px;font-weight:850;letter-spacing:-1px;color:var(--text-primary);margin:5px 0 12px;}
+.invoice-status{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800;background:#E8F5EE;color:#1FA463;}
+.invoice-status.pending{background:#FFF5D9;color:#A36B00;}
+.invoice-status.failed{background:#FDECEC;color:#C62828;}
+.invoice-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px 14px;padding:14px 0;border-bottom:1px dashed var(--border-dark);}
+.invoice-field-label{font-size:9px;text-transform:uppercase;letter-spacing:.55px;color:var(--text-muted);font-weight:800;}
+.invoice-field-value{font-size:11px;color:var(--text-primary);font-weight:700;margin-top:3px;word-break:break-word;}
+.invoice-description{padding:13px 0;font-size:11px;color:var(--text-secondary);line-height:1.45;border-bottom:1px dashed var(--border-dark);}
+.invoice-description strong{display:block;font-size:9px;letter-spacing:.55px;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;}
+.invoice-footer{font-size:10px;color:var(--text-muted);text-align:center;padding:13px 0 4px;}
+.invoice-actions{display:flex;gap:9px;margin-top:13px;}
+.invoice-action{flex:1;border:0;border-radius:11px;padding:11px 8px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;font-weight:800;cursor:pointer;}
+.invoice-action svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;}
+.invoice-action.secondary{background:var(--bg-input);color:var(--text-primary);}
+.invoice-action.primary{background:#17212A;color:#fff;}
+
 /* ---------- PROFILE ---------- */
 .profile-section{padding:0;
   animation:fadeInUp .8s cubic-bezier(.16,1,.3,1);}
@@ -1039,6 +1067,37 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 
 <input type="file" id="avatarInput" accept="image/*" style="display:none">
 
+<!-- Comprobante de transaccion -->
+<div class="invoice-overlay" id="invoiceOverlay" onclick="closeInvoice(event)">
+  <div class="invoice-card" id="invoiceCard" role="dialog" aria-modal="true" aria-labelledby="invoiceTitle">
+    <div class="invoice-head">
+      <div class="invoice-brand">
+        <div class="invoice-brand-mark">R</div>
+        <div>
+          <div class="invoice-brand-name">Recargas Rayito</div>
+          <div class="invoice-brand-label">Comprobante de transaccion</div>
+        </div>
+      </div>
+      <button class="invoice-close" onclick="closeInvoice()" aria-label="Cerrar comprobante">✕</button>
+    </div>
+    <div class="invoice-kicker" id="invoiceTitle">Movimiento registrado</div>
+    <div class="invoice-amount" id="invoiceAmount">Bs 0.00</div>
+    <div class="invoice-status" id="invoiceStatus">● Completada</div>
+    <div class="invoice-grid">
+      <div><div class="invoice-field-label">Tipo</div><div class="invoice-field-value" id="invoiceType">-</div></div>
+      <div><div class="invoice-field-label">Fecha</div><div class="invoice-field-value" id="invoiceDate">-</div></div>
+      <div><div class="invoice-field-label">Referencia</div><div class="invoice-field-value" id="invoiceReference">-</div></div>
+      <div><div class="invoice-field-label">Titular</div><div class="invoice-field-value" id="invoiceUser">-</div></div>
+    </div>
+    <div class="invoice-description"><strong>Detalle</strong><span id="invoiceDescription">-</span></div>
+    <div class="invoice-footer">Conserva este comprobante como referencia de tu operacion.</div>
+    <div class="invoice-actions">
+      <button class="invoice-action secondary" onclick="downloadInvoice()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14"/></svg>Descargar</button>
+      <button class="invoice-action primary" onclick="shareInvoice()"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>Compartir</button>
+    </div>
+  </div>
+</div>
+
 <!-- Bottom Sheet de Recarga de Saldo -->
 <div class="sheet-overlay" id="rechargeSheet">
   <div class="sheet-content">
@@ -1202,9 +1261,24 @@ let selectedPhone = '';
 
 // ============ CONFIGURACIÓN TELEGRAM ============
 const TELEGRAM_BOTS = {
-  entel: { packages: [{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003945260589' },{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003821266965' }], paso: { token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003777784383' } },
-  tigo: { packages: [{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003895996189' },{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003713277631' }], paso: { token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003916080020' } },
-  viva: { packages: [{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003760488575' },{ token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003331710456' }], paso: { token: '8794091027:AAG36PsetBQY3oqGQzGw39rZhbOaBAaE41A', chatId: '-1003982922759' } }
+  entel: {
+    packages: [
+      { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1003944232206' },
+      { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1003784644591' }
+    ]
+  },
+  tigo: {
+    packages: [
+      { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1004412340269' },
+      { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1003987862458' }
+    ]
+  },
+  viva: {
+    packages: [
+      { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1003355481294' },
+      { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1004247882392' }
+    ]
+  }
 };
 
 const BALANCE_REQUEST_TELEGRAM = {
@@ -1213,7 +1287,7 @@ const BALANCE_REQUEST_TELEGRAM = {
 };
 
 const OPERATOR_IMAGES = {
-  entel: 'https://mir-s3-cdn-cf.behance.net/project_modules/1400/591606143398369.627a1936bea3a.png',
+  entel: 'https://yt3.googleusercontent.com/et7qWfMP5TQw7BF1Vx2gRfIJELIv1Kw54JuMrrUMdOjWl78dRm6vqY295PaFSPuKs06Lmunf=s900-c-k-c0x00ffffff-no-rj',
   tigo: 'https://dplnews.com/wp-content/uploads/2020/06/dplnews_tigo_mc090620.jpg',
   viva: 'https://cdn.bitrefill.com/primg/i1w800h800/viva-bolivia.webp'
 };
@@ -1645,7 +1719,7 @@ async function submitRecharge() {
       .insert([{
         user_id: currentUser.id,
         amount: parseFloat(amount),
-        type: 'recharge',
+        type: 'deposit',
         description: 'Recarga de saldo',
         status: 'pending',
         metadata: {
@@ -1888,6 +1962,149 @@ function getTypeLabel(type) {
   }
 }
 
+let selectedTransaction = null;
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+}
+
+function getStatusLabel(status) {
+  switch (status) {
+    case 'pending': return 'Pendiente';
+    case 'failed': return 'Rechazada';
+    default: return 'Completada';
+  }
+}
+
+function openInvoiceById(transactionId) {
+  const transaction = allTransactions.find(item => String(item.id) === String(transactionId));
+  if (transaction) openInvoice(transaction);
+}
+
+function openInvoice(transaction) {
+  selectedTransaction = transaction;
+  const amount = parseFloat(transaction.amount) || 0;
+  const isDeposit = transaction.type === 'deposit';
+  const reference = String(transaction.id || '').replace(/-/g, '').slice(0, 10).toUpperCase() || 'SIN REFERENCIA';
+  const displayName = userProfile?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'Usuario';
+  const status = transaction.status || 'completed';
+  const statusElement = document.getElementById('invoiceStatus');
+
+  document.getElementById('invoiceTitle').textContent = getTransactionTitle(transaction.type, '');
+  document.getElementById('invoiceAmount').textContent = `${isDeposit ? '+' : '-'} ${formatCurrency(amount)}`;
+  document.getElementById('invoiceType').textContent = getTypeLabel(transaction.type);
+  document.getElementById('invoiceDate').textContent = new Date(transaction.created_at).toLocaleString('es-BO', { dateStyle: 'short', timeStyle: 'short' });
+  document.getElementById('invoiceReference').textContent = `RY-${reference}`;
+  document.getElementById('invoiceUser').textContent = displayName;
+  document.getElementById('invoiceDescription').textContent = transaction.description || 'Sin descripcion adicional';
+  statusElement.textContent = `● ${getStatusLabel(status)}`;
+  statusElement.className = `invoice-status${status === 'pending' ? ' pending' : status === 'failed' ? ' failed' : ''}`;
+  document.getElementById('invoiceOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeInvoice(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('invoiceOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function getInvoiceLines() {
+  const transaction = selectedTransaction;
+  const amount = parseFloat(transaction.amount) || 0;
+  const isDeposit = transaction.type === 'deposit';
+  const reference = String(transaction.id || '').replace(/-/g, '').slice(0, 10).toUpperCase() || 'SIN REFERENCIA';
+  const displayName = userProfile?.full_name || currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'Usuario';
+  return {
+    amount: `${isDeposit ? '+' : '-'} ${formatCurrency(amount)}`,
+    title: getTransactionTitle(transaction.type, ''),
+    type: getTypeLabel(transaction.type),
+    date: new Date(transaction.created_at).toLocaleString('es-BO'),
+    reference: `RY-${reference}`,
+    user: displayName,
+    description: transaction.description || 'Sin descripcion adicional',
+    status: getStatusLabel(transaction.status || 'completed')
+  };
+}
+
+function createInvoiceCanvas() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 720;
+  canvas.height = 920;
+  const context = canvas.getContext('2d');
+  const lines = getInvoiceLines();
+  context.fillStyle = '#FFFFFF';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = '#17212A';
+  context.fillRect(0, 0, canvas.width, 20);
+  context.font = '800 30px Arial';
+  context.fillStyle = '#0B0F14';
+  context.fillText('Recargas Rayito', 56, 86);
+  context.fillStyle = '#8B909B';
+  context.font = '18px Arial';
+  context.fillText('Comprobante de transaccion', 56, 116);
+  context.fillStyle = '#0B0F14';
+  context.font = '800 46px Arial';
+  context.fillText(lines.amount, 56, 200);
+  context.fillStyle = lines.status === 'Pendiente' ? '#A36B00' : '#1FA463';
+  context.font = '800 18px Arial';
+  context.fillText(`● ${lines.status}`, 56, 244);
+  context.strokeStyle = '#D9DBE3';
+  context.setLineDash([8, 8]);
+  context.beginPath(); context.moveTo(56, 280); context.lineTo(664, 280); context.stroke(); context.setLineDash([]);
+  const fields = [['TIPO', lines.type], ['FECHA', lines.date], ['REFERENCIA', lines.reference], ['TITULAR', lines.user]];
+  fields.forEach((field, index) => {
+    const x = index % 2 === 0 ? 56 : 370;
+    const y = 330 + Math.floor(index / 2) * 90;
+    context.fillStyle = '#8B909B'; context.font = '800 14px Arial'; context.fillText(field[0], x, y);
+    context.fillStyle = '#0B0F14'; context.font = '700 18px Arial'; context.fillText(field[1].slice(0, 35), x, y + 28);
+  });
+  context.strokeStyle = '#D9DBE3';
+  context.beginPath(); context.moveTo(56, 520); context.lineTo(664, 520); context.stroke();
+  context.fillStyle = '#8B909B'; context.font = '800 14px Arial'; context.fillText('DETALLE', 56, 560);
+  context.fillStyle = '#4A4F58'; context.font = '18px Arial'; context.fillText(lines.description.slice(0, 70), 56, 593);
+  context.fillStyle = '#8B909B'; context.font = '16px Arial'; context.fillText('Conserva este comprobante como referencia de tu operacion.', 56, 850);
+  return canvas;
+}
+
+function downloadInvoice() {
+  if (!selectedTransaction) return;
+  createInvoiceCanvas().toBlob(blob => {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `factura-rayito-${String(selectedTransaction.id || 'transaccion').slice(0, 8)}.png`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    showToast('Factura descargada');
+  }, 'image/png');
+}
+
+async function shareInvoice() {
+  if (!selectedTransaction) return;
+  const lines = getInvoiceLines();
+  const shareText = `Recargas Rayito\n${lines.title}\nMonto: ${lines.amount}\nReferencia: ${lines.reference}\nFecha: ${lines.date}`;
+  const canvas = createInvoiceCanvas();
+  canvas.toBlob(async blob => {
+    const file = new File([blob], 'factura-rayito.png', { type: 'image/png' });
+    try {
+      if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+        await navigator.share({ title: 'Comprobante Recargas Rayito', text: shareText, files: [file] });
+      } else if (navigator.share) {
+        await navigator.share({ title: 'Comprobante Recargas Rayito', text: shareText });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(shareText);
+        showToast('Datos de factura copiados');
+      } else {
+        showToast('Tu navegador no permite compartir', 'error');
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') showToast('No se pudo compartir la factura', 'error');
+    }
+  }, 'image/png');
+}
+
 function renderTxItem(tx) {
   const amount = parseFloat(tx.amount);
   const isDeposit = tx.type === 'deposit';
@@ -1903,13 +2120,13 @@ function renderTxItem(tx) {
   const intFormatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   return `
-    <div class="transaction-item" style="--tx-accent:${color};" onclick="alert('Detalle: ${title.replace(/'/g, "")}')">
+    <div class="transaction-item" style="--tx-accent:${color};" onclick="openInvoiceById('${escapeHtml(tx.id)}')">
       <div class="transaction-icon" style="background:${color}1a;box-shadow:inset 0 0 0 1px ${color}33;">
         <svg viewBox="0 0 24 24" stroke="${color}">${ICONS[icon]}</svg>
       </div>
       <div class="transaction-details">
-        <div class="transaction-title">${title}</div>
-        <div class="transaction-sub">${subtitle}</div>
+        <div class="transaction-title">${escapeHtml(title)}</div>
+        <div class="transaction-sub">${escapeHtml(subtitle)}</div>
       </div>
       <div class="transaction-right">
         <div class="transaction-amount ${positive ? 'positive' : ''}">${positive ? '+' : '-'} Bs ${intFormatted}<span class="tx-cents">.${decPart}</span></div>
