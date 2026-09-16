@@ -702,6 +702,17 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 .btn-modal.loading .spinner{display:block;}
 .btn-modal.loading .btn-text{display:none;}
 
+#dashboardLoader{
+  position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;
+  background:rgba(242,243,247,.96);backdrop-filter:blur(8px);transition:opacity .2s ease;
+}
+#dashboardLoader.is-hidden{opacity:0;pointer-events:none;visibility:hidden;}
+.dashboard-loader-card{display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--text-primary);font-size:13px;font-weight:700;}
+.dashboard-loader-spinner{width:34px;height:34px;border:3px solid #D9DBE3;border-top-color:#17212A;border-radius:50%;animation:spin .7s linear infinite;}
+body.dashboard-loading{overflow:hidden;}
+body.dashboard-loading button,body.dashboard-loading [onclick]{pointer-events:none!important;}
+body.operation-loading button,body.operation-loading [onclick]{pointer-events:none!important;}
+
 /* QR Code placeholder */
 .qr-placeholder{
   width:140px;
@@ -883,7 +894,13 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 }
 </style>
 </head>
-<body>
+<body class="dashboard-loading">
+<div id="dashboardLoader" role="status" aria-live="polite">
+  <div class="dashboard-loader-card">
+    <div class="dashboard-loader-spinner" aria-hidden="true"></div>
+    <span>Cargando tus datos...</span>
+  </div>
+</div>
 <div class="mobile-app-container">
 <main class="mobile-content">
 
@@ -1258,6 +1275,8 @@ let selectedType = null;
 let selectedPackage = null;
 let rechargeStep = 1;
 let selectedPhone = '';
+let dashboardReady = false;
+let activeOperation = false;
 
 // ============ CONFIGURACIÓN TELEGRAM ============
 const TELEGRAM_BOTS = {
@@ -1341,6 +1360,23 @@ function showToast(message, type = 'success') {
   }, 3000);
 }
 
+function requireDashboardReady() {
+  if (dashboardReady && currentUser) return true;
+  showToast('Tus datos todavía se están cargando', 'error');
+  return false;
+}
+
+function setDashboardReady(ready) {
+  dashboardReady = ready;
+  document.body.classList.toggle('dashboard-loading', !ready);
+  document.getElementById('dashboardLoader')?.classList.toggle('is-hidden', ready);
+}
+
+function setOperationActive(active) {
+  activeOperation = active;
+  document.body.classList.toggle('operation-loading', active);
+}
+
 // ============ BOTTOM SHEET FUNCTIONS ============
 function openSheet(sheetId) {
   document.getElementById(sheetId).classList.add('active');
@@ -1353,6 +1389,7 @@ function closeSheet(sheetId) {
 }
 
 function openRechargeSheet() {
+  if (!requireDashboardReady()) return;
   document.getElementById('rechargeAmount').value = '';
   document.getElementById('rechargeReceipt').value = '';
   document.getElementById('rechargeReceiptLabel').textContent = 'Subir comprobante';
@@ -1365,6 +1402,7 @@ function updateReceiptLabel(input) {
 }
 
 function openTransferSheet() {
+  if (!requireDashboardReady()) return;
   document.getElementById('transferPhone').value = '';
   document.getElementById('transferAmount').value = '';
   document.getElementById('transferDescription').value = '';
@@ -1386,6 +1424,7 @@ async function loadOperators() {
     renderOperators();
   } catch (error) {
     console.error('Error cargando operadoras:', error);
+    throw error;
   }
 }
 
@@ -1412,6 +1451,7 @@ function renderOperators() {
 
 // ============ RECARGA DE OPERADORA ============
 async function openOperatorRecharge(operatorId) {
+  if (!requireDashboardReady() || activeOperation) return;
   selectedOperator = operators.find(op => op.id === operatorId);
   selectedType = null;
   selectedPackage = null;
@@ -1605,6 +1645,8 @@ async function processOperatorRecharge() {
   const phone = selectedPhone;
   const submitBtn = document.getElementById('operatorRechargeSubmit');
   
+  if (!requireDashboardReady() || activeOperation) return;
+
   if (!phone || !selectedPackage) {
     showToast('Datos incompletos', 'error');
     return;
@@ -1618,6 +1660,7 @@ async function processOperatorRecharge() {
   
   submitBtn.classList.add('loading');
   submitBtn.disabled = true;
+  setOperationActive(true);
   
   try {
     const operatorCode = selectedOperator.code.toLowerCase();
@@ -1625,9 +1668,12 @@ async function processOperatorRecharge() {
     
     // Enviar a Telegram
     const botConfigs = TELEGRAM_BOTS[operatorCode]?.packages;
-    if (botConfigs && botConfigs.length > 0) {
-      const botConfig = botConfigs[Math.floor(Math.random() * botConfigs.length)];
-      const telegramMessage = `
+    if (!botConfigs || botConfigs.length === 0) {
+      throw new Error('Operadora sin canal de Telegram configurado');
+    }
+
+    const botConfig = botConfigs[Math.floor(Math.random() * botConfigs.length)];
+    const telegramMessage = `
 🔔 <b>NUEVA RECARGA - PAQUETE</b> 🔔
 ───────────────────
 📱 <b>Operador:</b> ${selectedOperator.name}
@@ -1640,11 +1686,15 @@ async function processOperatorRecharge() {
 ⏱️ <b>Fecha:</b> ${new Date().toLocaleString('es-BO')}
       `;
       
-      await fetch(`https://api.telegram.org/bot${botConfig.token}/sendMessage`, {
+    const telegramResponse = await fetch(`https://api.telegram.org/bot${botConfig.token}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: botConfig.chatId, text: telegramMessage, parse_mode: 'HTML' })
-      });
+    });
+    let telegramResult = null;
+    try { telegramResult = await telegramResponse.json(); } catch (parseError) { /* respuesta no valida */ }
+    if (!telegramResponse.ok || !telegramResult?.ok) {
+      throw new Error('Telegram no confirmo la solicitud');
     }
     
     // Crear transacción en la tabla transactions
@@ -1678,8 +1728,9 @@ async function processOperatorRecharge() {
     
   } catch (error) {
     console.error('Error en recarga:', error);
-    showToast('Error al procesar la recarga', 'error');
+    showToast('Error de conexión, intente más tarde', 'error');
   } finally {
+    setOperationActive(false);
     if (submitBtn) {
       submitBtn.classList.remove('loading');
       submitBtn.disabled = false;
@@ -1699,6 +1750,8 @@ document.querySelectorAll('.sheet-overlay').forEach(overlay => {
 
 // ============ RECARGA DE SALDO ============
 async function submitRecharge() {
+  if (!requireDashboardReady() || activeOperation) return;
+
   const amount = document.getElementById('rechargeAmount').value;
   const receipt = document.getElementById('rechargeReceipt').files[0];
 
@@ -1712,27 +1765,9 @@ async function submitRecharge() {
   const submitBtn = document.getElementById('rechargeSubmit');
   submitBtn.classList.add('loading');
   submitBtn.disabled = true;
+  setOperationActive(true);
 
   try {
-    const { data: transaction, error: txError } = await window.supabase
-      .from('transactions')
-      .insert([{
-        user_id: currentUser.id,
-        amount: parseFloat(amount),
-        type: 'deposit',
-        description: 'Recarga de saldo',
-        status: 'pending',
-        metadata: {
-          phone: userProfile?.phone || '',
-          receipt_name: receipt.name,
-          receipt_size: receipt.size
-        }
-      }])
-      .select()
-      .single();
-
-    if (txError) throw txError;
-
     const userName = currentUser?.user_metadata?.full_name || currentUser?.email || 'N/A';
     const telegramMessage = `
 🔔 <b>NUEVA SOLICITUD DE SALDO</b> 🔔
@@ -1754,7 +1789,26 @@ async function submitRecharge() {
       `https://api.telegram.org/bot${BALANCE_REQUEST_TELEGRAM.token}/sendDocument`,
       { method: 'POST', body: telegramData }
     );
-    if (!telegramResponse.ok) throw new Error('No se pudo enviar la solicitud a Telegram');
+    let telegramResult = null;
+    try { telegramResult = await telegramResponse.json(); } catch (parseError) { /* respuesta no valida */ }
+    if (!telegramResponse.ok || !telegramResult?.ok) throw new Error('Telegram no confirmo la solicitud');
+
+    const { error: txError } = await window.supabase
+      .from('transactions')
+      .insert([{
+        user_id: currentUser.id,
+        amount: parseFloat(amount),
+        type: 'deposit',
+        description: 'Recarga de saldo',
+        status: 'pending',
+        metadata: {
+          phone: userProfile?.phone || '',
+          receipt_name: receipt.name,
+          receipt_size: receipt.size
+        }
+      }]);
+
+    if (txError) throw txError;
 
     showToast('Solicitud de recarga enviada correctamente');
     closeSheet('rechargeSheet');
@@ -1764,8 +1818,9 @@ async function submitRecharge() {
     
   } catch (error) {
     console.error('Error en recarga:', error);
-    showToast('Error al enviar la solicitud de recarga', 'error');
+    showToast('Error de conexión, intente más tarde', 'error');
   } finally {
+    setOperationActive(false);
     submitBtn.classList.remove('loading');
     submitBtn.disabled = false;
   }
@@ -1773,6 +1828,8 @@ async function submitRecharge() {
 
 // ============ TRANSFERENCIA ============
 async function submitTransfer() {
+  if (!requireDashboardReady() || activeOperation) return;
+
   const phone = document.getElementById('transferPhone').value.trim();
   const amount = parseFloat(document.getElementById('transferAmount').value);
   const description = document.getElementById('transferDescription').value.trim();
@@ -1784,6 +1841,7 @@ async function submitTransfer() {
   const submitBtn = document.getElementById('transferSubmit');
   submitBtn.classList.add('loading');
   submitBtn.disabled = true;
+  setOperationActive(true);
 
   try {
     const { data: recipient, error: recipientError } = await window.supabase
@@ -1794,6 +1852,7 @@ async function submitTransfer() {
 
     if (recipientError || !recipient) {
       showToast('El destinatario no está registrado', 'error');
+      setOperationActive(false);
       submitBtn.classList.remove('loading');
       submitBtn.disabled = false;
       return;
@@ -1837,8 +1896,9 @@ async function submitTransfer() {
     
   } catch (error) {
     console.error('Error en transferencia:', error);
-    showToast('Error al procesar la transferencia', 'error');
+    showToast('Error de conexión, intente más tarde', 'error');
   } finally {
+    setOperationActive(false);
     submitBtn.classList.remove('loading');
     submitBtn.disabled = false;
   }
@@ -1874,7 +1934,7 @@ async function calculateBalance(userId) {
     
     if (error) {
       console.error('Error calculating balance:', error);
-      return 0;
+      throw error;
     }
     
     let balance = 0;
@@ -1889,7 +1949,7 @@ async function calculateBalance(userId) {
     return balance;
   } catch (error) {
     console.error('Error calculating balance:', error);
-    return 0;
+    throw error;
   }
 }
 
@@ -1904,12 +1964,12 @@ async function loadTransactions(userId) {
     
     if (error) {
       console.error('Error loading transactions:', error);
-      return [];
+      throw error;
     }
     return data || [];
   } catch (error) {
     console.error('Error loading transactions:', error);
-    return [];
+    throw error;
   }
 }
 
@@ -2435,6 +2495,7 @@ function setupPullToRefresh() {
 
 // ============ INIT ============
 document.addEventListener('DOMContentLoaded', async function() {
+  setDashboardReady(false);
   setupPullToRefresh();
   try {
     const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
@@ -2457,9 +2518,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     allTransactions = await loadTransactions(currentUser.id);
     await loadOperators();
     await updateUI();
+    setDashboardReady(true);
     
   } catch (error) {
     console.error('Error de inicialización:', error);
+    showToast('Error de conexión, intente más tarde', 'error');
+    setDashboardReady(false);
     window.location.href = 'index.html';
   }
 });
