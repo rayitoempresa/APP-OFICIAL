@@ -2143,21 +2143,14 @@ function downloadInvoice() {
 
 async function shareInvoice() {
   if (!selectedTransaction) return;
-  const lines = getInvoiceLines();
-  const shareText = `Recargas Rayito\n${lines.title}\nMonto: ${lines.amount}\nReferencia: ${lines.reference}\nFecha: ${lines.date}`;
   const canvas = createInvoiceCanvas();
   canvas.toBlob(async blob => {
     const file = new File([blob], 'factura-rayito.png', { type: 'image/png' });
     try {
       if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
-        await navigator.share({ title: 'Comprobante Recargas Rayito', text: shareText, files: [file] });
-      } else if (navigator.share) {
-        await navigator.share({ title: 'Comprobante Recargas Rayito', text: shareText });
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(shareText);
-        showToast('Datos de factura copiados');
+        await navigator.share({ files: [file] });
       } else {
-        showToast('Tu navegador no permite compartir', 'error');
+        showToast('Tu navegador no permite compartir imagenes', 'error');
       }
     } catch (error) {
       if (error.name !== 'AbortError') showToast('No se pudo compartir la factura', 'error');
