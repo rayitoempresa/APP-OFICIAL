@@ -1318,6 +1318,9 @@ const ICONS = {
   servicio: `<rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/>`
 };
 
+// ============ VARIABLES PARA VISIBILIDAD DE PRECIOS EN RECARGA ============
+let packagePricesVisible = false; // Por defecto oculto el precio final
+
 function formatCurrency(amount) {
   return 'Bs ' + parseFloat(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
@@ -1457,6 +1460,7 @@ async function openOperatorRecharge(operatorId) {
   selectedPackage = null;
   selectedPhone = '';
   rechargeStep = 1;
+  packagePricesVisible = false; // Resetear visibilidad de precios
   
   if (!selectedOperator) return;
   
@@ -1526,21 +1530,34 @@ function renderOperatorRecharge() {
       </div>
     `;
   } else if (rechargeStep === 2) {
-    // Mostrar paquetes
+    // Mostrar paquetes - Aquí está la clave: mostrar precio visual y opcionalmente precio final
     body.innerHTML = `
       <div class="form-group">
-        <label class="form-label">Selecciona un paquete</label>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <label class="form-label" style="margin-bottom:0;">Selecciona un paquete</label>
+          <span class="eye-toggle" onclick="togglePackagePrices()" title="Mostrar/ocultar precio final" style="color:#17212A;cursor:pointer;display:flex;">
+            <svg id="packageEyeIcon" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;">
+              ${packagePricesVisible ? '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>' : '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a21.6 21.6 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'}
+            </svg>
+          </span>
+        </div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           ${packages.length > 0 ? packages.map(pkg => `
             <div style="background:var(--bg-input);border:1.5px solid ${selectedPackage?.id === pkg.id ? '#17212A' : 'var(--border)'};border-radius:8px;padding:12px;cursor:pointer;transition:all .3s ease;" 
                  onclick="selectPackage('${pkg.id}')">
               <div style="display:flex;justify-content:space-between;align-items:center;">
-                <div>
+                <div style="flex:1;min-width:0;">
                   <div style="font-weight:700;font-size:13px;">${pkg.name}</div>
                   ${pkg.description ? `<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${pkg.description}</div>` : ''}
                 </div>
-                <div style="text-align:right;">
+                <div style="text-align:right;flex-shrink:0;margin-left:10px;">
                   <div style="font-weight:800;font-size:16px;">${formatCurrency(pkg.price)}</div>
+                  ${packagePricesVisible && pkg.final_price != null ? `
+                    <div style="font-size:11px;color:var(--success);font-weight:700;margin-top:2px;display:flex;align-items:center;gap:4px;justify-content:flex-end;">
+                      <svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.5;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                      Cobro: ${formatCurrency(pkg.final_price)}
+                    </div>
+                  ` : ''}
                 </div>
               </div>
             </div>
@@ -1553,7 +1570,14 @@ function renderOperatorRecharge() {
       </button>
     `;
   } else if (rechargeStep === 3) {
-    // Pedir número de teléfono
+    // Pedir número de teléfono - Mostrar precio visual y final si está visible
+    const finalPriceDisplay = packagePricesVisible && selectedPackage.final_price != null 
+      ? `<div style="font-size:12px;color:var(--success);font-weight:700;margin-top:6px;display:flex;align-items:center;gap:6px;">
+           <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+           Se cobrará: ${formatCurrency(selectedPackage.final_price)}
+         </div>`
+      : '';
+    
     body.innerHTML = `
       <div class="form-group">
         <label class="form-label">Paquete seleccionado</label>
@@ -1561,6 +1585,7 @@ function renderOperatorRecharge() {
           <div style="font-weight:700;font-size:13px;">${selectedPackage.name}</div>
           ${selectedPackage.description ? `<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${selectedPackage.description}</div>` : ''}
           <div style="font-weight:800;font-size:16px;margin-top:6px;">${formatCurrency(selectedPackage.price)}</div>
+          ${finalPriceDisplay}
         </div>
       </div>
       <div class="form-group">
@@ -1573,8 +1598,15 @@ function renderOperatorRecharge() {
       </button>
     `;
   } else if (rechargeStep === 4) {
-    // Confirmación
+    // Confirmación - Mostrar precio visual y final si está visible
     const phone = selectedPhone || document.getElementById('operatorPhone')?.value || '';
+    const finalPriceDisplay = packagePricesVisible && selectedPackage.final_price != null
+      ? `<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+           <span style="color:var(--text-muted);font-size:11px;">Precio final:</span>
+           <span style="font-weight:700;font-size:11px;color:var(--success);">${formatCurrency(selectedPackage.final_price)}</span>
+         </div>`
+      : '';
+    
     body.innerHTML = `
       <div class="form-group">
         <label class="form-label">Confirmar recarga</label>
@@ -1595,6 +1627,7 @@ function renderOperatorRecharge() {
             <span style="color:var(--text-muted);font-size:11px;">Número:</span>
             <span style="font-weight:700;font-size:11px;">+591 ${phone}</span>
           </div>
+          ${finalPriceDisplay}
           <div style="border-top:1px solid var(--border-dark);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;">
             <span style="font-weight:700;font-size:13px;">Total:</span>
             <span style="font-weight:800;font-size:16px;">${formatCurrency(selectedPackage.price)}</span>
@@ -1607,6 +1640,11 @@ function renderOperatorRecharge() {
       </button>
     `;
   }
+}
+
+function togglePackagePrices() {
+  packagePricesVisible = !packagePricesVisible;
+  renderOperatorRecharge();
 }
 
 function selectRechargeType(typeId) {
@@ -1652,9 +1690,12 @@ async function processOperatorRecharge() {
     return;
   }
   
-  // Validar saldo suficiente
-  if (currentBalance < selectedPackage.price) {
-    showToast(`Saldo insuficiente. Necesitas ${formatCurrency(selectedPackage.price)}`, 'error');
+  // USAR final_price para el cobro (si existe), sino usar price
+  const chargePrice = selectedPackage.final_price != null ? Number(selectedPackage.final_price) : Number(selectedPackage.price);
+  
+  // Validar saldo suficiente con el precio final (el que se cobra)
+  if (currentBalance < chargePrice) {
+    showToast(`Saldo insuficiente. Necesitas ${formatCurrency(chargePrice)}`, 'error');
     return;
   }
   
@@ -1680,7 +1721,7 @@ async function processOperatorRecharge() {
 📦 <b>Tipo:</b> ${selectedType.name}
 📦 <b>Paquete:</b> ${selectedPackage.name}
 📞 <b>Teléfono:</b> +591 ${phone}
-💵 <b>Precio pagado:</b> ${formatCurrency(selectedPackage.price)}
+💵 <b>Precio pagado:</b> ${formatCurrency(chargePrice)}
 👤 <b>Usuario:</b> ${userName}
 ───────────────────
 ⏱️ <b>Fecha:</b> ${new Date().toLocaleString('es-BO')}
@@ -1697,13 +1738,13 @@ async function processOperatorRecharge() {
       throw new Error('Telegram no confirmo la solicitud');
     }
     
-    // Crear transacción en la tabla transactions
+    // Crear transacción en la tabla transactions - SE COBRA EL PRECIO FINAL
     const description = `${selectedOperator.name} - ${selectedType.name}: ${selectedPackage.name} | +591 ${phone}`;
     const { data: transaction, error: txError } = await window.supabase
       .from('transactions')
       .insert([{
         user_id: currentUser.id,
-        amount: selectedPackage.price,
+        amount: chargePrice, // ← PRECIO FINAL (el que se cobra)
         type: 'withdrawal',
         description: description,
         status: 'completed',
@@ -1712,7 +1753,9 @@ async function processOperatorRecharge() {
           recharge_type: selectedType.name,
           package_name: selectedPackage.name,
           phone_number: phone,
-          package_id: selectedPackage.id
+          package_id: selectedPackage.id,
+          price_displayed: selectedPackage.price, // Precio visual mostrado al usuario
+          final_price_charged: chargePrice // Precio real cobrado
         }
       }])
       .select()
@@ -2313,7 +2356,6 @@ function setAvatarImages(url) {
 function openEditProfileSheet() {
   const local = getLocalProfile();
   document.getElementById('editFullName').value = local.full_name || userProfile?.full_name || '';
-  // Correo y celular son de solo lectura (no editables)
   document.getElementById('editEmail').value = local.email || currentUser?.email || '';
   document.getElementById('editPhone').value = local.phone || userProfile?.phone || '';
   openSheet('editProfileSheet');
@@ -2328,10 +2370,8 @@ async function saveProfile() {
   submitBtn.classList.add('loading');
   submitBtn.disabled = true;
 
-  // Solo se guarda el nombre (la foto se guarda al seleccionarla). Guardado local siempre.
   setLocalProfile({ full_name: fullName });
 
-  // Intentar sincronizar con Supabase (best-effort)
   try {
     await window.supabase.from('user_profiles').update({ full_name: fullName }).eq('id', currentUser.id);
     if (userProfile) userProfile.full_name = fullName;
@@ -2371,7 +2411,6 @@ document.getElementById('avatarInput').addEventListener('change', async function
   const reader = new FileReader();
   reader.onload = async function(ev) {
     const avatarDataUrl = ev.target.result;
-    // Guardado local inmediato (no depende de la red)
     setLocalProfile({ avatar: avatarDataUrl });
     setAvatarImages(avatarDataUrl);
     
