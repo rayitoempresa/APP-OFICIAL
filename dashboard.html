@@ -253,18 +253,13 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 .quick-action-btn{flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);
   padding:14px 4px;display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;
   color:var(--text-primary);font-weight:700;font-size:11px;
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, background .3s ease;
-  box-shadow:var(--shadow-sm);
-  will-change:transform;
-  transform:translateZ(0);
-  backface-visibility:hidden;}
-.quick-action-btn:hover{box-shadow:var(--shadow-md);background:#fff;transform:translateY(-3px) scale(1.03);}
-.quick-action-btn:active{transform:translateY(0) scale(.95);box-shadow:var(--shadow-sm);}
+  transition:none;box-shadow:none;will-change:auto;transform:none;backface-visibility:visible;}
+.quick-action-btn:hover{box-shadow:none;background:var(--bg-input);transform:none;}
+.quick-action-btn:active{transform:scale(.98);box-shadow:none;}
 .qa-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;
   background:#fff;box-shadow:0 3px 10px rgba(16,24,40,.1);
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-  overflow:hidden;}
-.quick-action-btn:hover .qa-icon{transform:scale(1.08);}
+  transition:none;overflow:hidden;}
+.quick-action-btn:hover .qa-icon{transform:none;}
 .qa-icon img{width:100%;height:100%;object-fit:cover;border-radius:12px;}
 .qa-icon svg{width:18px;height:18px;stroke-width:2;}
 
@@ -1530,12 +1525,12 @@ function renderOperatorRecharge() {
       <div class="form-group">
         <label class="form-label">Selecciona el tipo de recarga</label>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <div style="background:var(--bg-input);border:1.5px solid ${selectedType?.id === NORMAL_RECHARGE_TYPE.id ? '#17212A' : 'var(--border)'};border-radius:8px;padding:14px;cursor:pointer;transition:all .3s ease;" 
+          <div style="background:var(--bg-input);border:1.5px solid ${selectedType?.id === NORMAL_RECHARGE_TYPE.id ? '#17212A' : 'var(--border)'};border-radius:8px;padding:14px;cursor:pointer;transition:none;" 
                onclick="selectRechargeType('${NORMAL_RECHARGE_TYPE.id}')">
             <div style="font-weight:700;font-size:13px;">${NORMAL_RECHARGE_TYPE.name}</div>
           </div>
           ${rechargeTypes.length > 0 ? rechargeTypes.map(type => `
-            <div style="background:var(--bg-input);border:1.5px solid ${selectedType?.id === type.id ? '#17212A' : 'var(--border)'};border-radius:8px;padding:14px;cursor:pointer;transition:all .3s ease;" 
+            <div style="background:var(--bg-input);border:1.5px solid ${selectedType?.id === type.id ? '#17212A' : 'var(--border)'};border-radius:8px;padding:14px;cursor:pointer;transition:none;" 
                  onclick="selectRechargeType('${type.id}')">
               <div style="font-weight:700;font-size:13px;">${type.name}</div>
               ${type.description ? `<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${type.description}</div>` : ''}
@@ -1558,7 +1553,7 @@ function renderOperatorRecharge() {
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           ${packages.length > 0 ? packages.map(pkg => `
-            <div style="background:var(--bg-input);border:1.5px solid ${selectedPackage?.id === pkg.id ? '#17212A' : 'var(--border)'};border-radius:8px;padding:12px;cursor:pointer;transition:all .3s ease;" 
+            <div style="background:var(--bg-input);border:1.5px solid ${selectedPackage?.id === pkg.id ? '#17212A' : 'var(--border)'};border-radius:8px;padding:12px;cursor:pointer;transition:none;" 
                  onclick="selectPackage('${pkg.id}')">
               <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div style="flex:1;min-width:0;">
@@ -2586,54 +2581,15 @@ async function logout() {
 }
 
 function setupPullToRefresh() {
-  const content = document.querySelector('.mobile-content');
-  if (!content) return;
-
-  let startY = 0;
-  let pullDistance = 0;
-  let trackingPull = false;
-
-  content.addEventListener('touchstart', function(event) {
-    const homeTab = document.getElementById('tab-inicio');
-    const isHomeVisible = homeTab?.classList.contains('active');
-    if (content.scrollTop === 0 && isHomeVisible && !isRefreshingDashboard) {
-      startY = event.touches[0].clientY;
-      pullDistance = 0;
-      trackingPull = true;
-    }
-  }, { passive: true });
-
-  content.addEventListener('touchmove', function(event) {
-    if (!trackingPull) return;
-
-    pullDistance = event.touches[0].clientY - startY;
-    if (pullDistance <= 0) {
-      trackingPull = false;
-      content.style.transform = 'translateZ(0)';
-      return;
-    }
-
-    if (pullDistance > 8) event.preventDefault();
-    content.style.transform = `translateY(${Math.min(pullDistance / 3, 48)}px)`;
-  }, { passive: false });
-
-  content.addEventListener('touchend', function() {
-    if (!trackingPull) return;
-
-    const shouldRefresh = pullDistance >= 70;
-    trackingPull = false;
-    pullDistance = 0;
-    content.style.transition = 'transform .25s ease';
-    content.style.transform = 'translateZ(0)';
-    setTimeout(() => { content.style.transition = ''; }, 250);
-
-    if (shouldRefresh) refreshDashboard();
-  }, { passive: true });
+  // Se desactiva el gesto de arrastrar para actualizar.
+  // La actualización solo queda disponible desde el botón de refresh.
+  return;
 }
 
 // ============ INIT ============
 document.addEventListener('DOMContentLoaded', async function() {
   setDashboardReady(false);
+  // Pull-to-refresh deshabilitado: solo se actualiza con el botón.
   setupPullToRefresh();
   try {
     const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
