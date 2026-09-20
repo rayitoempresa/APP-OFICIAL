@@ -1275,6 +1275,7 @@ let selectedType = null;
 let selectedPackage = null;
 let rechargeStep = 1;
 let selectedPhone = '';
+let normalRechargeAmount = 0;
 let dashboardReady = false;
 let activeOperation = false;
 
@@ -1284,20 +1285,29 @@ const TELEGRAM_BOTS = {
     packages: [
       { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1003944232206' },
       { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1003784644591' }
-    ]
+    ],
+    normal: { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1004466104942' }
   },
   tigo: {
     packages: [
       { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1004412340269' },
       { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1003987862458' }
-    ]
+    ],
+    normal: { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1003727527591' }
   },
   viva: {
     packages: [
       { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1003355481294' },
       { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1004247882392' }
-    ]
+    ],
+    normal: { token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM', chatId: '-1003926017064' }
   }
+};
+
+const NORMAL_RECHARGE_TYPE = {
+  id: 'normal-static',
+  name: 'RECARGA NORMAL',
+  discountRate: { entel: 0.08, viva: 0.08, tigo: 0.04 }
 };
 
 const BALANCE_REQUEST_TELEGRAM = {
@@ -1459,6 +1469,7 @@ async function openOperatorRecharge(operatorId) {
   selectedType = null;
   selectedPackage = null;
   selectedPhone = '';
+  normalRechargeAmount = 0;
   rechargeStep = 1;
   packagePricesVisible = false; // Resetear visibilidad de precios
   
@@ -1519,6 +1530,10 @@ function renderOperatorRecharge() {
       <div class="form-group">
         <label class="form-label">Selecciona el tipo de recarga</label>
         <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--bg-input);border:1.5px solid ${selectedType?.id === NORMAL_RECHARGE_TYPE.id ? '#17212A' : 'var(--border)'};border-radius:8px;padding:14px;cursor:pointer;transition:all .3s ease;" 
+               onclick="selectRechargeType('${NORMAL_RECHARGE_TYPE.id}')">
+            <div style="font-weight:700;font-size:13px;">${NORMAL_RECHARGE_TYPE.name}</div>
+          </div>
           ${rechargeTypes.length > 0 ? rechargeTypes.map(type => `
             <div style="background:var(--bg-input);border:1.5px solid ${selectedType?.id === type.id ? '#17212A' : 'var(--border)'};border-radius:8px;padding:14px;cursor:pointer;transition:all .3s ease;" 
                  onclick="selectRechargeType('${type.id}')">
@@ -1570,6 +1585,25 @@ function renderOperatorRecharge() {
       </button>
     `;
   } else if (rechargeStep === 3) {
+    if (selectedType?.id === NORMAL_RECHARGE_TYPE.id) {
+      const discountRate = getNormalRechargeDiscount();
+      body.innerHTML = `
+        <div class="form-group">
+          <label class="form-label">Número de teléfono</label>
+          <input type="tel" id="operatorPhone" class="form-input" placeholder="Ej: 77712345" maxlength="8" inputmode="numeric" value="${selectedPhone}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="normalRechargeAmount">Monto a recargar (Bs)</label>
+          <input type="number" id="normalRechargeAmount" class="form-input" placeholder="Mínimo 2 Bs" min="2" step="0.01" value="${normalRechargeAmount || ''}">
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Descuento aplicado: ${discountRate * 100}%</div>
+        </div>
+        <button class="btn-modal" onclick="goToConfirmStep()">
+          <span class="btn-text">Continuar</span>
+          <div class="spinner"></div>
+        </button>
+      `;
+      return;
+    }
     // Pedir número de teléfono - Mostrar precio visual y final si está visible
     const finalPriceDisplay = packagePricesVisible && selectedPackage.final_price != null 
       ? `<div style="font-size:12px;color:var(--success);font-weight:700;margin-top:6px;display:flex;align-items:center;gap:6px;">
@@ -1598,6 +1632,28 @@ function renderOperatorRecharge() {
       </button>
     `;
   } else if (rechargeStep === 4) {
+    if (selectedType?.id === NORMAL_RECHARGE_TYPE.id) {
+      const discountRate = getNormalRechargeDiscount();
+      const amountToRecharge = normalRechargeAmount;
+      const amountToCharge = amountToRecharge * (1 - discountRate);
+      body.innerHTML = `
+        <div class="form-group">
+          <label class="form-label">Confirmar recarga normal</label>
+          <div style="background:var(--bg-input);border-radius:8px;padding:16px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--text-muted);font-size:11px;">Operadora:</span><span style="font-weight:700;font-size:11px;">${selectedOperator.name}</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--text-muted);font-size:11px;">Número:</span><span style="font-weight:700;font-size:11px;">+591 ${selectedPhone}</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--text-muted);font-size:11px;">Monto a recargar:</span><span style="font-weight:700;font-size:11px;">${formatCurrency(amountToRecharge)}</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--text-muted);font-size:11px;">Descuento:</span><span style="font-weight:700;font-size:11px;color:var(--success);">${discountRate * 100}%</span></div>
+            <div style="border-top:1px solid var(--border-dark);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;"><span style="font-weight:700;font-size:13px;">Total a pagar:</span><span style="font-weight:800;font-size:16px;">${formatCurrency(amountToCharge)}</span></div>
+          </div>
+        </div>
+        <button class="btn-modal" id="operatorRechargeSubmit" onclick="processOperatorRecharge()">
+          <span class="btn-text">Confirmar recarga</span>
+          <div class="spinner"></div>
+        </button>
+      `;
+      return;
+    }
     // Confirmación - Mostrar precio visual y final si está visible
     const phone = selectedPhone || document.getElementById('operatorPhone')?.value || '';
     const finalPriceDisplay = packagePricesVisible && selectedPackage.final_price != null
@@ -1647,9 +1703,21 @@ function togglePackagePrices() {
   renderOperatorRecharge();
 }
 
+function getNormalRechargeDiscount() {
+  return NORMAL_RECHARGE_TYPE.discountRate[selectedOperator?.code?.toLowerCase()] || 0;
+}
+
 function selectRechargeType(typeId) {
-  selectedType = rechargeTypes.find(t => t.id === typeId);
+  selectedType = typeId === NORMAL_RECHARGE_TYPE.id
+    ? NORMAL_RECHARGE_TYPE
+    : rechargeTypes.find(t => t.id === typeId);
   selectedPackage = null;
+
+  if (selectedType?.id === NORMAL_RECHARGE_TYPE.id) {
+    rechargeStep = 3;
+    renderOperatorRecharge();
+    return;
+  }
   
   loadPackages(selectedOperator.id, typeId).then(() => {
     rechargeStep = 2;
@@ -1674,6 +1742,18 @@ function goToConfirmStep() {
     showToast('Ingresa un número válido de 8 dígitos', 'error');
     return;
   }
+  if (selectedType?.id === NORMAL_RECHARGE_TYPE.id) {
+    const amount = Number(document.getElementById('normalRechargeAmount')?.value);
+    if (!Number.isFinite(amount) || amount < 2) {
+      showToast('El monto mínimo es 2 Bs', 'error');
+      return;
+    }
+    selectedPhone = phone;
+    normalRechargeAmount = amount;
+    rechargeStep = 4;
+    renderOperatorRecharge();
+    return;
+  }
   selectedPhone = phone;
   rechargeStep = 4;
   renderOperatorRecharge();
@@ -1685,13 +1765,22 @@ async function processOperatorRecharge() {
   
   if (!requireDashboardReady() || activeOperation) return;
 
-  if (!phone || !selectedPackage) {
+  const isNormalRecharge = selectedType?.id === NORMAL_RECHARGE_TYPE.id;
+  if (!phone || (!selectedPackage && !isNormalRecharge)) {
     showToast('Datos incompletos', 'error');
     return;
   }
   
-  // USAR final_price para el cobro (si existe), sino usar price
-  const chargePrice = selectedPackage.final_price != null ? Number(selectedPackage.final_price) : Number(selectedPackage.price);
+  const discountRate = isNormalRecharge ? getNormalRechargeDiscount() : 0;
+  const rechargeAmount = isNormalRecharge ? Number(normalRechargeAmount) : null;
+  const chargePrice = isNormalRecharge
+    ? Number((rechargeAmount * (1 - discountRate)).toFixed(2))
+    : (selectedPackage.final_price != null ? Number(selectedPackage.final_price) : Number(selectedPackage.price));
+
+  if (isNormalRecharge && (!Number.isFinite(rechargeAmount) || rechargeAmount < 2)) {
+    showToast('El monto mínimo es 2 Bs', 'error');
+    return;
+  }
   
   // Validar saldo suficiente con el precio final (el que se cobra)
   if (currentBalance < chargePrice) {
@@ -1707,14 +1796,28 @@ async function processOperatorRecharge() {
     const operatorCode = selectedOperator.code.toLowerCase();
     const userName = currentUser?.user_metadata?.full_name || currentUser?.email || 'N/A';
     
-    // Enviar a Telegram
-    const botConfigs = TELEGRAM_BOTS[operatorCode]?.packages;
-    if (!botConfigs || botConfigs.length === 0) {
+    // Recarga normal usa un canal exclusivo; los paquetes conservan sus canales actuales.
+    const botConfigs = isNormalRecharge ? TELEGRAM_BOTS[operatorCode]?.normal : TELEGRAM_BOTS[operatorCode]?.packages;
+    if (!botConfigs || (Array.isArray(botConfigs) && botConfigs.length === 0)) {
       throw new Error('Operadora sin canal de Telegram configurado');
     }
 
-    const botConfig = botConfigs[Math.floor(Math.random() * botConfigs.length)];
-    const telegramMessage = `
+    const botConfig = Array.isArray(botConfigs)
+      ? botConfigs[Math.floor(Math.random() * botConfigs.length)]
+      : botConfigs;
+    const telegramMessage = isNormalRecharge ? `
+🔔 <b>NUEVA RECARGA - NORMAL</b> 🔔
+───────────────────
+📱 <b>Operador:</b> ${selectedOperator.name}
+📦 <b>Tipo:</b> ${NORMAL_RECHARGE_TYPE.name}
+📞 <b>Teléfono:</b> +591 ${phone}
+💵 <b>Monto a recargar:</b> ${formatCurrency(rechargeAmount)}
+🏷️ <b>Descuento:</b> ${discountRate * 100}%
+💳 <b>Monto cobrado:</b> ${formatCurrency(chargePrice)}
+👤 <b>Usuario:</b> ${userName}
+───────────────────
+⏱️ <b>Fecha:</b> ${new Date().toLocaleString('es-BO')}
+      ` : `
 🔔 <b>NUEVA RECARGA - PAQUETE</b> 🔔
 ───────────────────
 📱 <b>Operador:</b> ${selectedOperator.name}
@@ -1739,7 +1842,9 @@ async function processOperatorRecharge() {
     }
     
     // Crear transacción en la tabla transactions - SE COBRA EL PRECIO FINAL
-    const description = `${selectedOperator.name} - ${selectedType.name}: ${selectedPackage.name} | +591 ${phone}`;
+    const description = isNormalRecharge
+      ? `${selectedOperator.name} - ${NORMAL_RECHARGE_TYPE.name} | +591 ${phone} | ${formatCurrency(rechargeAmount)}`
+      : `${selectedOperator.name} - ${selectedType.name}: ${selectedPackage.name} | +591 ${phone}`;
     const { data: transaction, error: txError } = await window.supabase
       .from('transactions')
       .insert([{
@@ -1751,11 +1856,12 @@ async function processOperatorRecharge() {
         metadata: {
           operator: selectedOperator.name,
           recharge_type: selectedType.name,
-          package_name: selectedPackage.name,
+          package_name: isNormalRecharge ? null : selectedPackage.name,
           phone_number: phone,
-          package_id: selectedPackage.id,
-          price_displayed: selectedPackage.price, // Precio visual mostrado al usuario
-          final_price_charged: chargePrice // Precio real cobrado
+          package_id: isNormalRecharge ? null : selectedPackage.id,
+          price_displayed: isNormalRecharge ? rechargeAmount : selectedPackage.price,
+          discount_rate: discountRate,
+          final_price_charged: chargePrice
         }
       }])
       .select()
