@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta id="theme-color" name="theme-color" content="#FFFFFF">
+<title>Recargas Rayito - Juegos</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --primary:#17212A;
+  --accent:#3B82F6;
+  --bg-body:#F2F3F7;
+  --bg-card:#FFFFFF;
+  --bg-input:#F5F6FA;
+  --border:#ECEDF1;
+  --border-dark:#D9DBE3;
+  --text-primary:#0B0F14;
+  --text-secondary:#4A4F58;
+  --text-muted:#8B909B;
+  --danger:#E53935;
+  --success:#1FA463;
+  --shadow-sm:0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.04);
+  --shadow-md:0 4px 16px rgba(16,24,40,.07), 0 1px 3px rgba(16,24,40,.05);
+  --shadow-lg:0 12px 34px rgba(16,24,40,.12), 0 2px 8px rgba(16,24,40,.07);
+  --radius:20px;
+  --radius-sm:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+  font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Arial, sans-serif;
+  scrollbar-width:none!important;-ms-overflow-style:none!important;}
+*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
+  display:flex;justify-content:center;align-items:flex-start;padding:0;
+  position:relative;overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  background-image:radial-gradient(120% 60% at 50% -10%, #E4E8F2 0%, transparent 55%);}
+.mobile-app-container{width:100%;max-width:420px;display:flex;flex-direction:column;
+  position:relative;overflow:hidden;height:100vh;height:100dvh;max-height:100dvh;}
+.mobile-content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
+  display:flex;flex-direction:column;gap:16px;padding:18px;padding-bottom:40px;}
+
+/* ---------- HEADER ---------- */
+.header{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;padding:4px 2px;
+  animation:fadeInDown .6s cubic-bezier(.16,1,.3,1);gap:10px;}
+.header-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1;}
+.back-btn{width:42px;height:42px;border-radius:14px;background:#FFFFFF;border:1px solid var(--border);
+  box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--text-primary);transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;flex-shrink:0;}
+.back-btn:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.back-btn:active{transform:scale(.92);}
+.back-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;}
+.greeting-wrap{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.greeting-hi{font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.4px;
+  text-transform:uppercase;}
+.greeting-name{font-size:17px;font-weight:800;color:var(--text-primary);letter-spacing:-0.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* Píldora de saldo en esquina */
+.balance-pill{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;
+  background:linear-gradient(135deg, #0E161D 0%, #2C3B49 100%);
+  color:#fff;box-shadow:0 8px 20px -8px rgba(14,22,29,.6), 0 2px 6px rgba(14,22,29,.2);
+  font-size:12px;font-weight:800;letter-spacing:-0.2px;flex-shrink:0;
+  cursor:pointer;border:1px solid rgba(255,255,255,.12);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;}
+.balance-pill:hover{transform:translateY(-1px);box-shadow:0 12px 26px -8px rgba(14,22,29,.65), 0 2px 8px rgba(14,22,29,.25);}
+.balance-pill:active{transform:scale(.96);}
+.balance-pill svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.4;opacity:.85;flex-shrink:0;}
+.balance-pill .bp-value{font-variant-numeric:tabular-nums;letter-spacing:-0.3px;}
+
+/* ---------- VIEW: WINDOW ---------- */
+.view{display:none;}
+.view.active{display:flex;flex-direction:column;gap:14px;animation:fadeIn .3s ease;}
+
+.window-card{background:#FFFFFF;border-radius:22px;padding:16px;
+  border:1px solid var(--border);box-shadow:var(--shadow-md);
+  animation:fadeInUp .5s cubic-bezier(.16,1,.3,1);}
+.window-head{display:flex;justify-content:space-between;align-items:center;
+  padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:14px;}
+.window-head h2{font-size:15px;font-weight:800;color:var(--text-primary);letter-spacing:-0.4px;
+  display:flex;align-items:center;gap:8px;}
+.window-head h2 svg{width:16px;height:16px;stroke:#17212A;fill:none;stroke-width:2;}
+.window-back-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;
+  background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);
+  font-size:11px;font-weight:800;cursor:pointer;letter-spacing:-0.1px;
+  transition:transform .25s ease, background .25s ease, box-shadow .25s ease;}
+.window-back-btn:hover{background:#17212A;color:#fff;box-shadow:var(--shadow-md);}
+.window-back-btn:active{transform:scale(.95);}
+.window-back-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;}
+
+/* Categorías grid */
+.categories-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;}
+.category-card{background:var(--bg-input);border:1.5px solid var(--border);border-radius:18px;
+  padding:14px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;
+  cursor:pointer;text-align:center;
+  animation:slideInRight .45s cubic-bezier(.16,1,.3,1) both;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), border-color .25s ease, background .25s ease, box-shadow .25s ease;}
+.category-card:nth-child(1){animation-delay:.03s;}
+.category-card:nth-child(2){animation-delay:.07s;}
+.category-card:nth-child(3){animation-delay:.11s;}
+.category-card:nth-child(4){animation-delay:.15s;}
+.category-card:nth-child(5){animation-delay:.19s;}
+.category-card:nth-child(6){animation-delay:.23s;}
+.category-card:hover{border-color:#17212A;background:#fff;transform:translateY(-3px);
+  box-shadow:0 10px 24px rgba(16,24,40,.10);}
+.category-card:active{transform:scale(.96);}
+.cat-thumb{width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+  background:#fff;box-shadow:0 4px 12px rgba(16,24,40,.08);overflow:hidden;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+.category-card:hover .cat-thumb{transform:scale(1.08);}
+.cat-thumb img{width:100%;height:100%;object-fit:cover;}
+.cat-thumb svg{width:26px;height:26px;stroke:#17212A;fill:none;stroke-width:2;}
+.cat-name{font-size:12px;font-weight:800;color:var(--text-primary);letter-spacing:-0.2px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.cat-count{font-size:9.5px;font-weight:700;color:var(--text-muted);letter-spacing:.3px;}
+
+/* Paquetes list */
+.packages-list{display:flex;flex-direction:column;gap:10px;}
+.package-card{background:var(--bg-input);border:1.5px solid var(--border);border-radius:18px;padding:14px 15px;
+  display:flex;align-items:center;gap:13px;cursor:pointer;
+  animation:slideInRight .4s cubic-bezier(.16,1,.3,1) both;
+  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;}
+.package-card:nth-child(1){animation-delay:.03s;}
+.package-card:nth-child(2){animation-delay:.06s;}
+.package-card:nth-child(3){animation-delay:.09s;}
+.package-card:nth-child(4){animation-delay:.12s;}
+.package-card:nth-child(5){animation-delay:.15s;}
+.package-card:hover{background:#fff;border-color:#17212A;transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(16,24,40,.08);}
+.package-card:active{transform:scale(.985);}
+.package-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:linear-gradient(135deg,#17212A 0%,#2C3B49 100%);color:#fff;
+  box-shadow:0 6px 14px -6px rgba(23,33,42,.55);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.package-card:hover .package-icon{transform:scale(1.06) rotate(-3deg);}
+.package-icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;}
+.package-info{flex:1;min-width:0;}
+.package-name{font-size:13.5px;font-weight:800;color:var(--text-primary);letter-spacing:-0.3px;}
+.package-desc{font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.package-price{font-size:16px;font-weight:850;color:var(--text-primary);white-space:nowrap;
+  letter-spacing:-0.5px;flex-shrink:0;}
+.package-arrow{width:22px;height:22px;border-radius:50%;background:#fff;
+  display:flex;align-items:center;justify-content:center;color:var(--text-secondary);flex-shrink:0;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), background .3s ease, color .3s ease;}
+.package-card:hover .package-arrow{background:#17212A;color:#fff;transform:translateX(2px);}
+.package-arrow svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;}
+
+.empty-state{text-align:center;padding:34px 16px;color:var(--text-muted);font-size:12.5px;font-weight:600;
+  background:#FFFFFF;border-radius:16px;border:1.5px dashed var(--border-dark);}
+
+/* ---------- BOTTOM SHEET MODAL ---------- */
+.sheet-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(11,15,20,.55);backdrop-filter:blur(2px);z-index:2000;
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;visibility:hidden;
+  transition:opacity .35s cubic-bezier(.4,0,.2,1),visibility .35s cubic-bezier(.4,0,.2,1);}
+.sheet-overlay.active{opacity:1;visibility:visible;}
+.sheet-content{
+  background:#FFFFFF;border-radius:26px 26px 0 0;
+  padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom, 0px));
+  width:100%;max-width:420px;max-height:88vh;overflow-y:auto;
+  box-shadow:0 -12px 44px rgba(0,0,0,.28);
+  transform:translateY(100%);transition:transform .5s cubic-bezier(.16,1,.3,1);}
+.sheet-overlay.active .sheet-content{transform:translateY(0);}
+.sheet-grabber{width:40px;height:4px;background:#CCCCCC;border-radius:2px;margin:0 auto 16px;cursor:pointer;}
+.sheet-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;
+  border-bottom:2px solid #F0F1F5;}
+.sheet-title{font-size:17px;font-weight:800;color:#0B0F14;letter-spacing:-0.4px;}
+.sheet-close{cursor:pointer;color:#888;font-size:18px;background:#F5F6FA;border:none;
+  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  transition:all .3s ease;}
+.sheet-close:hover{color:#fff;background:#E53935;transform:rotate(90deg);}
+.sheet-body{display:flex;flex-direction:column;gap:14px;}
+
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-size:11px;font-weight:800;color:#444;text-transform:uppercase;letter-spacing:.6px;}
+.form-input{width:100%;padding:13px 14px;border:1.5px solid #E5E5E5;border-radius:12px;font-size:14px;
+  background:#F8F8F8;color:#000;transition:all .3s ease;outline:none;font-weight:600;}
+.form-input:focus{border-color:#17212A;background:#FFFFFF;box-shadow:0 0 0 4px rgba(23,33,42,.09);}
+.form-input::placeholder{color:#9CA1AB;font-weight:500;}
+.form-textarea{width:100%;padding:13px 14px;border:1.5px solid #E5E5E5;border-radius:12px;font-size:14px;
+  background:#F8F8F8;color:#000;transition:all .3s ease;outline:none;font-weight:600;
+  resize:vertical;min-height:70px;font-family:inherit;}
+.form-textarea:focus{border-color:#17212A;background:#FFFFFF;box-shadow:0 0 0 4px rgba(23,33,42,.09);}
+.form-textarea::placeholder{color:#9CA1AB;font-weight:500;}
+.form-hint{font-size:10px;color:var(--text-muted);font-weight:600;margin-top:2px;letter-spacing:.1px;}
+
+.summary-box{background:linear-gradient(135deg, #F5F6FA 0%, #EFF1F6 100%);
+  border-radius:14px;padding:14px;border:1px solid var(--border);}
+.summary-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px;}
+.summary-row:last-child{margin-bottom:0;}
+.summary-label{color:var(--text-muted);font-weight:700;}
+.summary-value{color:var(--text-primary);font-weight:700;text-align:right;word-break:break-word;max-width:60%;}
+.summary-total{border-top:1px dashed var(--border-dark);margin-top:10px;padding-top:12px;
+  display:flex;justify-content:space-between;font-size:13px;align-items:center;}
+.summary-total .summary-label{font-weight:800;color:var(--text-primary);font-size:12.5px;
+  text-transform:uppercase;letter-spacing:.6px;}
+.summary-total .summary-value{font-weight:850;font-size:19px;letter-spacing:-0.5px;}
+
+.btn-modal{width:100%;padding:15px;border-radius:14px;border:none;font-size:13.5px;font-weight:800;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:-0.2px;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  background:linear-gradient(135deg, #17212A 0%, #303C48 100%);color:#fff;
+  box-shadow:0 10px 24px -8px rgba(23,33,42,.6);
+  position:relative;overflow:hidden;margin-top:4px;}
+.btn-modal:hover{transform:translateY(-2px);box-shadow:0 14px 30px -8px rgba(23,33,42,.65);}
+.btn-modal:active{transform:scale(.97);}
+.btn-modal:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none;}
+.spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.3);border-radius:50%;
+  border-top-color:#fff;animation:spin .6s linear infinite;display:none;}
+.btn-modal.loading .spinner{display:block;}
+.btn-modal.loading .btn-text{display:none;}
+
+#dashboardLoader{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;
+  background:rgba(242,243,247,.96);backdrop-filter:blur(8px);transition:opacity .2s ease;}
+#dashboardLoader.is-hidden{opacity:0;pointer-events:none;visibility:hidden;}
+.dashboard-loader-card{display:flex;flex-direction:column;align-items:center;gap:12px;
+  color:var(--text-primary);font-size:13px;font-weight:700;}
+.dashboard-loader-spinner{width:36px;height:36px;border:3px solid #D9DBE3;border-top-color:#17212A;
+  border-radius:50%;animation:spin .7s linear infinite;}
+body.dashboard-loading{overflow:hidden;}
+body.operation-loading button,body.operation-loading [onclick]{pointer-events:none!important;}
+
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:translateX(0);}}
+
+@media (max-width:480px){
+  .mobile-content{padding:14px;}
+  .sheet-content{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom, 0px));}
+}
+@media (max-width:360px){
+  .categories-grid{grid-template-columns:repeat(2, 1fr);}
+}
+</style>
+</head>
+<body class="dashboard-loading">
+<div id="dashboardLoader" role="status" aria-live="polite">
+  <div class="dashboard-loader-card">
+    <div class="dashboard-loader-spinner" aria-hidden="true"></div>
+    <span>Cargando juegos...</span>
+  </div>
+</div>
+<div class="mobile-app-container">
+<main class="mobile-content">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <button class="back-btn" onclick="goBack()" title="Volver" aria-label="Volver">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="greeting-wrap">
+        <div class="greeting-hi">Recargas Rayito</div>
+        <div class="greeting-name">Juegos</div>
+      </div>
+    </div>
+    <div class="balance-pill" onclick="toggleBalanceVisibility()" title="Ocultar/mostrar saldo">
+      <svg id="pillEyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="bp-value" id="balancePillValue">Bs 0.00</span>
+    </div>
+  </div>
+
+  <!-- VISTA 1: CATEGORÍAS -->
+  <div class="view active" id="viewCategories">
+    <div class="window-card">
+      <div class="window-head">
+        <h2>
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/></svg>
+          Categorías
+        </h2>
+      </div>
+      <div class="categories-grid" id="categoriesGrid">
+        <div class="empty-state" style="grid-column:1/-1;">Cargando categorías...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA 2: PAQUETES -->
+  <div class="view" id="viewPackages">
+    <div class="window-card">
+      <div class="window-head">
+        <h2>
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/></svg>
+          <span id="packagesHeadTitle">Paquetes</span>
+        </h2>
+        <button class="window-back-btn" onclick="backToCategories()">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Volver
+        </button>
+      </div>
+      <div class="packages-list" id="packagesList">
+        <div class="empty-state">Selecciona una categoría</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- Bottom Sheet: Datos de la cuenta de juego -->
+<div class="sheet-overlay" id="gameDataSheet">
+  <div class="sheet-content">
+    <div class="sheet-grabber"></div>
+    <div class="sheet-header">
+      <div class="sheet-title">Datos de la cuenta</div>
+      <button class="sheet-close" onclick="closeSheet('gameDataSheet')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="summary-box">
+        <div class="summary-row">
+          <span class="summary-label">Juego:</span>
+          <span class="summary-value" id="summaryGame">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Paquete:</span>
+          <span class="summary-value" id="summaryPackage">-</span>
+        </div>
+        <div class="summary-total">
+          <span class="summary-label">Total:</span>
+          <span class="summary-value" id="summaryPrice">Bs 0.00</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="gameAccountId">ID o código de la cuenta de juego</label>
+        <input type="text" id="gameAccountId" class="form-input" placeholder="Ej: 123456789" autocomplete="off">
+        <div class="form-hint">Ingresa el ID o código de la cuenta que se recargará</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="gameNickname">Nombre / Nick (opcional)</label>
+        <input type="text" id="gameNickname" class="form-input" placeholder="Ej: ProGamer123" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="gameNotes">Notas adicionales (opcional)</label>
+        <textarea id="gameNotes" class="form-textarea" placeholder="Ej: Servidor, zona, correo vinculado, etc." rows="3"></textarea>
+        <div class="form-hint">Si el juego requiere más datos, escríbelos aquí</div>
+      </div>
+
+      <button class="btn-modal" id="gameRechargeSubmit" onclick="submitGameRecharge()">
+        <span class="btn-text">Confirmar recarga</span>
+        <div class="spinner"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ CONFIGURACIÓN SUPABASE ============
+const supabaseUrl = 'https://zdrefbeqbqpvkrbexcva.supabase.co';
+const supabaseKey = 'sb_publishable_fZgh-mQwxI-hnphiXRgHUA_ovOs_GF5';
+window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+// ============ CONFIGURACIÓN TELEGRAM ============
+// 👇 PON AQUÍ TU TOKEN Y CHAT ID DEL BOT PARA JUEGOS
+const GAME_TELEGRAM = {
+  token: 'TU_TOKEN_AQUI',
+  chatId: 'TU_CHAT_ID_AQUI'
+};
+
+// ============ ESTADO ============
+let balanceVisible = true;
+let currentUser = null;
+let userProfile = null;
+let currentBalance = 0;
+let gameCategories = [];
+let gamePackages = [];
+let packagesCountByCategory = {};
+let selectedCategory = null;
+let selectedPackage = null;
+let dashboardReady = false;
+let activeOperation = false;
+
+const EYE_OPEN = `<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>`;
+const EYE_CLOSED = `<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a21.6 21.6 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+
+// ============ UTILIDADES ============
+function formatCurrency(amount) {
+  return 'Bs ' + parseFloat(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+}
+
+function showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position:fixed;top:20px;left:50%;transform:translateX(-50%);
+    padding:12px 20px;border-radius:8px;color:#fff;font-weight:600;
+    z-index:3000;font-size:13px;max-width:90%;text-align:center;
+    animation:fadeInDown .3s ease;`;
+  toast.style.background = type === 'success' ? '#43A047' : '#E53935';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity .3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+function setDashboardReady(ready) {
+  dashboardReady = ready;
+  document.body.classList.toggle('dashboard-loading', !ready);
+  document.getElementById('dashboardLoader')?.classList.toggle('is-hidden', ready);
+}
+
+function setOperationActive(active) {
+  activeOperation = active;
+  document.body.classList.toggle('operation-loading', active);
+}
+
+function requireDashboardReady() {
+  if (dashboardReady && currentUser) return true;
+  showToast('Tus datos todavía se están cargando', 'error');
+  return false;
+}
+
+// ============ NAVEGACIÓN ============
+function goBack() {
+  if (window.history.length > 1) {
+    window.history.back();
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 400);
+  } else {
+    window.location.href = 'dashboard.html';
+  }
+}
+
+// ============ VISTAS (categorías / paquetes) ============
+function showCategoriesView() {
+  document.getElementById('viewCategories').classList.add('active');
+  document.getElementById('viewPackages').classList.remove('active');
+}
+
+function showPackagesView() {
+  document.getElementById('viewCategories').classList.remove('active');
+  document.getElementById('viewPackages').classList.add('active');
+}
+
+function backToCategories() {
+  selectedPackage = null;
+  showCategoriesView();
+}
+
+// ============ SHEET ============
+function openSheet(sheetId) {
+  document.getElementById(sheetId).classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeSheet(sheetId) {
+  document.getElementById(sheetId).classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.sheet-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+});
+
+// ============ CARGA DE DATOS ============
+async function loadUserProfile(userId) {
+  try {
+    const { data, error } = await window.supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
+    if (error) return null;
+    return data;
+  } catch { return null; }
+}
+
+async function calculateBalance(userId) {
+  const { data, error } = await window.supabase
+    .from('transactions')
+    .select('amount, type')
+    .eq('user_id', userId)
+    .eq('status', 'completed');
+  if (error) throw error;
+  let balance = 0;
+  (data || []).forEach(t => {
+    if (t.type === 'deposit') balance += parseFloat(t.amount);
+    else balance -= parseFloat(t.amount);
+  });
+  return balance;
+}
+
+async function loadGameCategories() {
+  const { data, error } = await window.supabase
+    .from('game_categories')
+    .select('*')
+    .eq('is_active', true)
+    .order('display_order');
+  if (error) throw error;
+  gameCategories = data || [];
+}
+
+async function loadPackagesCount() {
+  const { data, error } = await window.supabase
+    .from('game_packages')
+    .select('category_id')
+    .eq('is_active', true);
+  if (error) return;
+  packagesCountByCategory = {};
+  (data || []).forEach(p => {
+    packagesCountByCategory[p.category_id] = (packagesCountByCategory[p.category_id] || 0) + 1;
+  });
+}
+
+async function loadGamePackages(categoryId) {
+  const { data, error } = await window.supabase
+    .from('game_packages')
+    .select('*')
+    .eq('category_id', categoryId)
+    .eq('is_active', true)
+    .order('price');
+  if (error) throw error;
+  gamePackages = data || [];
+}
+
+// ============ RENDER CATEGORÍAS ============
+function renderCategories() {
+  const grid = document.getElementById('categoriesGrid');
+  if (gameCategories.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">No hay categorías disponibles</div>';
+    return;
+  }
+  grid.innerHTML = gameCategories.map(cat => {
+    const count = packagesCountByCategory[cat.id] || 0;
+    return `
+      <div class="category-card" onclick="selectCategory('${cat.id}')">
+        <div class="cat-thumb">
+          ${cat.image_url
+            ? `<img src="${escapeHtml(cat.image_url)}" alt="${escapeHtml(cat.name)}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<svg viewBox=\\'0 0 24 24\\'><rect x=\\'3\\' y=\\'6\\' width=\\'18\\' height=\\'12\\' rx=\\'2\\'/><circle cx=\\'9\\' cy=\\'12\\' r=\\'1.5\\'/><circle cx=\\'15\\' cy=\\'12\\' r=\\'1.5\\'/></svg>'">`
+            : `<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/></svg>`}
+        </div>
+        <div class="cat-name">${escapeHtml(cat.name)}</div>
+        <div class="cat-count">${count} paquete${count === 1 ? '' : 's'}</div>
+      </div>`;
+  }).join('');
+}
+
+// ============ RENDER PAQUETES ============
+function renderPackages() {
+  const container = document.getElementById('packagesList');
+  const titleEl = document.getElementById('packagesHeadTitle');
+  if (titleEl) {
+    titleEl.textContent = selectedCategory ? selectedCategory.name : 'Paquetes';
+  }
+  if (!selectedCategory) {
+    container.innerHTML = '<div class="empty-state">Selecciona una categoría</div>';
+    return;
+  }
+  if (gamePackages.length === 0) {
+    container.innerHTML = '<div class="empty-state">No hay paquetes disponibles en esta categoría</div>';
+    return;
+  }
+  container.innerHTML = gamePackages.map(pkg => `
+    <div class="package-card" onclick="openGameSheet('${pkg.id}')">
+      <div class="package-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </div>
+      <div class="package-info">
+        <div class="package-name">${escapeHtml(pkg.name)}</div>
+        ${pkg.description ? `<div class="package-desc">${escapeHtml(pkg.description)}</div>` : ''}
+      </div>
+      <div class="package-price">${formatCurrency(pkg.price)}</div>
+      <div class="package-arrow">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============ ACCIONES ============
+async function selectCategory(categoryId) {
+  selectedCategory = gameCategories.find(c => c.id === categoryId);
+  selectedPackage = null;
+  if (!selectedCategory) return;
+
+  showPackagesView();
+  document.getElementById('packagesList').innerHTML =
+    '<div class="empty-state">Cargando paquetes...</div>';
+
+  try {
+    await loadGamePackages(categoryId);
+    renderPackages();
+  } catch (error) {
+    console.error('Error cargando paquetes:', error);
+    document.getElementById('packagesList').innerHTML =
+      '<div class="empty-state">Error al cargar paquetes</div>';
+  }
+}
+
+function openGameSheet(packageId) {
+  if (!requireDashboardReady()) return;
+  selectedPackage = gamePackages.find(p => p.id === packageId);
+  if (!selectedPackage) return;
+
+  document.getElementById('summaryGame').textContent = selectedCategory?.name || '-';
+  document.getElementById('summaryPackage').textContent = selectedPackage.name;
+  document.getElementById('summaryPrice').textContent = formatCurrency(selectedPackage.price);
+  document.getElementById('gameAccountId').value = '';
+  document.getElementById('gameNickname').value = '';
+  document.getElementById('gameNotes').value = '';
+
+  openSheet('gameDataSheet');
+  setTimeout(() => document.getElementById('gameAccountId').focus(), 350);
+}
+
+// ============ ENVÍO DE RECARGA ============
+async function submitGameRecharge() {
+  if (!requireDashboardReady() || activeOperation) return;
+  if (!selectedPackage || !selectedCategory) {
+    showToast('Datos incompletos', 'error');
+    return;
+  }
+
+  const accountId = document.getElementById('gameAccountId').value.trim();
+  const nickname = document.getElementById('gameNickname').value.trim();
+  const notes = document.getElementById('gameNotes').value.trim();
+  const price = parseFloat(selectedPackage.price);
+
+  if (!accountId) { showToast('Ingresa el ID o código de la cuenta', 'error'); return; }
+  if (accountId.length < 4) { showToast('El ID o código es muy corto', 'error'); return; }
+
+  if (currentBalance < price) {
+    showToast(`Saldo insuficiente. Necesitas ${formatCurrency(price)}`, 'error');
+    return;
+  }
+
+  const submitBtn = document.getElementById('gameRechargeSubmit');
+  submitBtn.classList.add('loading');
+  submitBtn.disabled = true;
+  setOperationActive(true);
+
+  try {
+    const userName = userProfile?.full_name
+      || currentUser?.user_metadata?.full_name
+      || currentUser?.email
+      || 'N/A';
+
+    // 1) Enviar a Telegram
+    const telegramMessage = `
+🎮 <b>NUEVA RECARGA DE JUEGO</b> 🎮
+───────────────────
+🎯 <b>Categoría:</b> ${selectedCategory.name}
+📦 <b>Paquete:</b> ${selectedPackage.name}
+💰 <b>Precio:</b> ${formatCurrency(price)}
+🆔 <b>ID/Código:</b> <code>${accountId}</code>
+🎭 <b>Nick:</b> ${nickname || 'No especificado'}
+📝 <b>Notas:</b> ${notes || 'Sin notas adicionales'}
+👤 <b>Usuario:</b> ${userName}
+───────────────────
+⏱️ <b>Fecha:</b> ${new Date().toLocaleString('es-BO')}
+    `.trim();
+
+    if (GAME_TELEGRAM.token && GAME_TELEGRAM.token !== 'TU_TOKEN_AQUI'
+        && GAME_TELEGRAM.chatId && GAME_TELEGRAM.chatId !== 'TU_CHAT_ID_AQUI') {
+      const telegramResponse = await fetch(
+        `https://api.telegram.org/bot${GAME_TELEGRAM.token}/sendMessage`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: GAME_TELEGRAM.chatId,
+            text: telegramMessage,
+            parse_mode: 'HTML'
+          })
+        }
+      );
+      let telegramResult = null;
+      try { telegramResult = await telegramResponse.json(); } catch {}
+      if (!telegramResponse.ok || !telegramResult?.ok) {
+        throw new Error('Telegram no confirmó la solicitud');
+      }
+    } else {
+      console.warn('Telegram no configurado. Omite el envío.');
+    }
+
+    // 2) Registrar transacción
+    const description = `${selectedCategory.name} - ${selectedPackage.name} | ID: ${accountId}${nickname ? ` | Nick: ${nickname}` : ''}${notes ? ` | Notas: ${notes}` : ''}`;
+    const { error: txError } = await window.supabase
+      .from('transactions')
+      .insert([{
+        user_id: currentUser.id,
+        amount: price,
+        type: 'withdrawal',
+        description: description,
+        status: 'completed',
+        metadata: {
+          game_category: selectedCategory.name,
+          game_category_id: selectedCategory.id,
+          package_name: selectedPackage.name,
+          package_id: selectedPackage.id,
+          game_account_id: accountId,
+          game_nickname: nickname || null,
+          game_notes: notes || null,
+          final_price_charged: price
+        }
+      }]);
+
+    if (txError) throw txError;
+
+    // 3) Actualizar saldo local
+    currentBalance -= price;
+    document.getElementById('balancePillValue').textContent = balanceVisible
+      ? formatCurrency(currentBalance)
+      : '••••••';
+
+    showToast(`Recarga ${selectedPackage.name} exitosa`);
+    closeSheet('gameDataSheet');
+
+  } catch (error) {
+    console.error('Error en recarga de juego:', error);
+    showToast('Error de conexión, intente más tarde', 'error');
+  } finally {
+    setOperationActive(false);
+    if (submitBtn) {
+      submitBtn.classList.remove('loading');
+      submitBtn.disabled = false;
+    }
+  }
+}
+
+// ============ SALDO ============
+function toggleBalanceVisibility() {
+  balanceVisible = !balanceVisible;
+  document.getElementById('balancePillValue').textContent = balanceVisible
+    ? formatCurrency(currentBalance)
+    : '••••••';
+  document.getElementById('pillEyeIcon').innerHTML = balanceVisible ? EYE_OPEN : EYE_CLOSED;
+}
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', async function() {
+  setDashboardReady(false);
+  try {
+    const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
+
+    if (sessionError) {
+      console.error('Error de sesión:', sessionError);
+      window.location.href = 'index.html';
+      return;
+    }
+
+    if (!session || !session.user) {
+      console.warn('No hay sesión activa, redirigiendo al login');
+      window.location.href = 'index.html';
+      return;
+    }
+
+    currentUser = session.user;
+    console.log('✅ Usuario autenticado:', currentUser.email);
+
+    try {
+      userProfile = await loadUserProfile(currentUser.id);
+    } catch (e) {
+      console.warn('No se pudo cargar el perfil:', e);
+      userProfile = { full_name: currentUser.email };
+    }
+
+    try {
+      currentBalance = await calculateBalance(currentUser.id);
+    } catch (e) {
+      console.warn('No se pudo calcular saldo:', e);
+      currentBalance = 0;
+    }
+
+    document.getElementById('balancePillValue').textContent = formatCurrency(currentBalance);
+
+    try {
+      await loadGameCategories();
+      await loadPackagesCount();
+      renderCategories();
+      showCategoriesView();
+    } catch (e) {
+      console.error('Error cargando juegos:', e);
+      document.getElementById('categoriesGrid').innerHTML =
+        '<div class="empty-state" style="grid-column:1/-1;">Error al cargar categorías</div>';
+    }
+
+    setDashboardReady(true);
+    console.log('✅ Dashboard de juegos listo');
+
+  } catch (error) {
+    console.error('❌ Error de inicialización:', error);
+    showToast('Error al cargar la página', 'error');
+    setDashboardReady(false);
+  }
+});
+</script>
+</body>
+</html>
