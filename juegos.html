@@ -34,8 +34,7 @@ html{scroll-behavior:smooth;}
 body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   display:flex;justify-content:center;align-items:flex-start;padding:0;
   position:relative;overflow:hidden;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
   background-image:radial-gradient(120% 60% at 50% -10%, #E4E8F2 0%, transparent 55%);}
 .mobile-app-container{width:100%;max-width:420px;display:flex;flex-direction:column;
   position:relative;overflow:hidden;height:100vh;height:100dvh;max-height:100dvh;}
@@ -53,8 +52,7 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
 .back-btn:active{transform:scale(.92);}
 .back-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;}
 .greeting-wrap{display:flex;flex-direction:column;gap:2px;min-width:0;}
-.greeting-hi{font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.4px;
-  text-transform:uppercase;}
+.greeting-hi{font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;}
 .greeting-name{font-size:17px;font-weight:800;color:var(--text-primary);letter-spacing:-0.5px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
@@ -362,8 +360,8 @@ window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
 // ============ CONFIGURACIÓN TELEGRAM ============
 // 👇 PON AQUÍ TU TOKEN Y CHAT ID DEL BOT PARA JUEGOS
 const GAME_TELEGRAM = {
-  token: '8632119959:AAHs43u1TOwhoZFMZZ0pr1jdvwUHPqCPJtM',
-  chatId: '-5207929771'
+  token: 'TU_TOKEN_AQUI',
+  chatId: 'TU_CHAT_ID_AQUI'
 };
 
 // ============ ESTADO ============
@@ -384,13 +382,23 @@ const EYE_CLOSED = `<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7
 
 // ============ UTILIDADES ============
 function formatCurrency(amount) {
-  return 'Bs ' + parseFloat(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return 'Bs ' + parseFloat(amount || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, character => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[character]));
+}
+
+// Devuelve el precio FINAL que se muestra y se cobra.
+// Si final_price no está definido, usa price como respaldo.
+function getPackageDisplayPrice(pkg) {
+  const finalPrice = pkg?.final_price;
+  if (finalPrice !== null && finalPrice !== undefined && !Number.isNaN(Number(finalPrice))) {
+    return Number(finalPrice);
+  }
+  return Number(pkg?.price || 0);
 }
 
 function showToast(message, type = 'success') {
@@ -569,21 +577,24 @@ function renderPackages() {
     container.innerHTML = '<div class="empty-state">No hay paquetes disponibles en esta categoría</div>';
     return;
   }
-  container.innerHTML = gamePackages.map(pkg => `
-    <div class="package-card" onclick="openGameSheet('${pkg.id}')">
-      <div class="package-icon">
-        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+  container.innerHTML = gamePackages.map(pkg => {
+    const price = getPackageDisplayPrice(pkg);
+    return `
+      <div class="package-card" onclick="openGameSheet('${pkg.id}')">
+        <div class="package-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <div class="package-info">
+          <div class="package-name">${escapeHtml(pkg.name)}</div>
+          ${pkg.description ? `<div class="package-desc">${escapeHtml(pkg.description)}</div>` : ''}
+        </div>
+        <div class="package-price">${formatCurrency(price)}</div>
+        <div class="package-arrow">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+        </div>
       </div>
-      <div class="package-info">
-        <div class="package-name">${escapeHtml(pkg.name)}</div>
-        ${pkg.description ? `<div class="package-desc">${escapeHtml(pkg.description)}</div>` : ''}
-      </div>
-      <div class="package-price">${formatCurrency(pkg.price)}</div>
-      <div class="package-arrow">
-        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 // ============ ACCIONES ============
@@ -611,9 +622,11 @@ function openGameSheet(packageId) {
   selectedPackage = gamePackages.find(p => p.id === packageId);
   if (!selectedPackage) return;
 
+  const price = getPackageDisplayPrice(selectedPackage);
+
   document.getElementById('summaryGame').textContent = selectedCategory?.name || '-';
   document.getElementById('summaryPackage').textContent = selectedPackage.name;
-  document.getElementById('summaryPrice').textContent = formatCurrency(selectedPackage.price);
+  document.getElementById('summaryPrice').textContent = formatCurrency(price);
   document.getElementById('gameAccountId').value = '';
   document.getElementById('gameNickname').value = '';
   document.getElementById('gameNotes').value = '';
@@ -633,7 +646,7 @@ async function submitGameRecharge() {
   const accountId = document.getElementById('gameAccountId').value.trim();
   const nickname = document.getElementById('gameNickname').value.trim();
   const notes = document.getElementById('gameNotes').value.trim();
-  const price = parseFloat(selectedPackage.price);
+  const price = getPackageDisplayPrice(selectedPackage);
 
   if (!accountId) { showToast('Ingresa el ID o código de la cuenta', 'error'); return; }
   if (accountId.length < 4) { showToast('El ID o código es muy corto', 'error'); return; }
@@ -692,7 +705,7 @@ async function submitGameRecharge() {
       console.warn('Telegram no configurado. Omite el envío.');
     }
 
-    // 2) Registrar transacción
+    // 2) Registrar transacción (se descuenta final_price)
     const description = `${selectedCategory.name} - ${selectedPackage.name} | ID: ${accountId}${nickname ? ` | Nick: ${nickname}` : ''}${notes ? ` | Notas: ${notes}` : ''}`;
     const { error: txError } = await window.supabase
       .from('transactions')
@@ -710,7 +723,8 @@ async function submitGameRecharge() {
           game_account_id: accountId,
           game_nickname: nickname || null,
           game_notes: notes || null,
-          final_price_charged: price
+          price_reference: selectedPackage.price,      // referencia (oculto)
+          final_price_charged: price                    // precio cobrado real
         }
       }]);
 
