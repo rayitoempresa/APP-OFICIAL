@@ -199,6 +199,25 @@ body{background:var(--bg-body);color:var(--text-primary);min-height:100vh;
   text-transform:uppercase;letter-spacing:.6px;}
 .summary-total .summary-value{font-weight:850;font-size:19px;letter-spacing:-0.5px;}
 
+/* Fila del precio final con ojito */
+.final-price-row{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:#FFFFFF;border:1px solid var(--border);border-radius:10px;
+  padding:9px 12px;margin-top:10px;}
+.final-price-label{display:inline-flex;align-items:center;gap:6px;
+  font-size:10.5px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;}
+.final-price-label svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.2;}
+.final-price-value{display:flex;align-items:center;gap:8px;}
+.final-price-amount{font-size:15px;font-weight:850;color:var(--success);letter-spacing:-0.4px;
+  font-variant-numeric:tabular-nums;transition:filter .25s ease, opacity .25s ease;}
+.final-price-amount.hidden{filter:blur(6px);opacity:.55;user-select:none;}
+.final-price-eye{background:#F5F6FA;border:1px solid var(--border);border-radius:50%;
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-primary);flex-shrink:0;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), background .25s ease, color .25s ease;}
+.final-price-eye:hover{background:#17212A;color:#fff;transform:scale(1.06);}
+.final-price-eye:active{transform:scale(.92);}
+.final-price-eye svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2;}
+
 .btn-modal{width:100%;padding:15px;border-radius:14px;border:none;font-size:13.5px;font-weight:800;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:-0.2px;
   transition:all .3s cubic-bezier(.34,1.56,.64,1);
@@ -321,8 +340,23 @@ body.operation-loading button,body.operation-loading [onclick]{pointer-events:no
           <span class="summary-value" id="summaryPackage">-</span>
         </div>
         <div class="summary-total">
-          <span class="summary-label">Total:</span>
+          <span class="summary-label">Precio:</span>
           <span class="summary-value" id="summaryPrice">Bs 0.00</span>
+        </div>
+
+        <!-- Fila con precio final y botón ver -->
+        <div class="final-price-row">
+          <span class="final-price-label">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Precio final
+          </span>
+          <div class="final-price-value">
+            <span class="final-price-amount hidden" id="summaryFinalPrice">••••••</span>
+            <button class="final-price-eye" id="finalPriceEyeBtn" type="button"
+                    onclick="toggleFinalPrice()" title="Ver precio final" aria-label="Ver precio final">
+              <svg id="finalPriceEyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -376,6 +410,7 @@ let selectedCategory = null;
 let selectedPackage = null;
 let dashboardReady = false;
 let activeOperation = false;
+let finalPriceVisible = false; // Precio final oculto por defecto
 
 const EYE_OPEN = `<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>`;
 const EYE_CLOSED = `<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 7 11 7a21.6 21.6 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
@@ -391,12 +426,11 @@ function escapeHtml(value) {
   }[character]));
 }
 
-// Devuelve el precio FINAL que se muestra y se cobra.
-// Si final_price no está definido, usa price como respaldo.
-function getPackageDisplayPrice(pkg) {
-  const finalPrice = pkg?.final_price;
-  if (finalPrice !== null && finalPrice !== undefined && !Number.isNaN(Number(finalPrice))) {
-    return Number(finalPrice);
+// Precio que se MUESTRA y se COBRA (final_price). Fallback a price si no existe.
+function getFinalPrice(pkg) {
+  const fp = pkg?.final_price;
+  if (fp !== null && fp !== undefined && !Number.isNaN(Number(fp))) {
+    return Number(fp);
   }
   return Number(pkg?.price || 0);
 }
@@ -478,6 +512,35 @@ document.querySelectorAll('.sheet-overlay').forEach(overlay => {
     }
   });
 });
+
+// ============ PRECIO FINAL (mostrar/ocultar) ============
+function toggleFinalPrice() {
+  finalPriceVisible = !finalPriceVisible;
+  const amountEl = document.getElementById('summaryFinalPrice');
+  const iconEl = document.getElementById('finalPriceEyeIcon');
+  if (!amountEl || !iconEl) return;
+
+  amountEl.classList.toggle('hidden', !finalPriceVisible);
+  iconEl.innerHTML = finalPriceVisible ? EYE_OPEN : EYE_CLOSED;
+
+  if (finalPriceVisible) {
+    const price = selectedPackage ? getFinalPrice(selectedPackage) : 0;
+    amountEl.textContent = formatCurrency(price);
+  } else {
+    amountEl.textContent = '••••••';
+  }
+}
+
+function resetFinalPriceDisplay() {
+  finalPriceVisible = false;
+  const amountEl = document.getElementById('summaryFinalPrice');
+  const iconEl = document.getElementById('finalPriceEyeIcon');
+  if (amountEl) {
+    amountEl.textContent = '••••••';
+    amountEl.classList.add('hidden');
+  }
+  if (iconEl) iconEl.innerHTML = EYE_CLOSED;
+}
 
 // ============ CARGA DE DATOS ============
 async function loadUserProfile(userId) {
@@ -563,6 +626,8 @@ function renderCategories() {
 }
 
 // ============ RENDER PAQUETES ============
+// Nota: en la lista se muestra SOLO el precio visual (price).
+// El precio final (final_price) se muestra en el sheet con el ojito.
 function renderPackages() {
   const container = document.getElementById('packagesList');
   const titleEl = document.getElementById('packagesHeadTitle');
@@ -578,7 +643,7 @@ function renderPackages() {
     return;
   }
   container.innerHTML = gamePackages.map(pkg => {
-    const price = getPackageDisplayPrice(pkg);
+    const visualPrice = Number(pkg.price || 0);
     return `
       <div class="package-card" onclick="openGameSheet('${pkg.id}')">
         <div class="package-icon">
@@ -588,7 +653,7 @@ function renderPackages() {
           <div class="package-name">${escapeHtml(pkg.name)}</div>
           ${pkg.description ? `<div class="package-desc">${escapeHtml(pkg.description)}</div>` : ''}
         </div>
-        <div class="package-price">${formatCurrency(price)}</div>
+        <div class="package-price">${formatCurrency(visualPrice)}</div>
         <div class="package-arrow">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
         </div>
@@ -622,11 +687,16 @@ function openGameSheet(packageId) {
   selectedPackage = gamePackages.find(p => p.id === packageId);
   if (!selectedPackage) return;
 
-  const price = getPackageDisplayPrice(selectedPackage);
+  const visualPrice = Number(selectedPackage.price || 0);
 
   document.getElementById('summaryGame').textContent = selectedCategory?.name || '-';
   document.getElementById('summaryPackage').textContent = selectedPackage.name;
-  document.getElementById('summaryPrice').textContent = formatCurrency(price);
+  // En el resumen se muestra el PRECIO VISUAL (price)
+  document.getElementById('summaryPrice').textContent = formatCurrency(visualPrice);
+
+  // Resetear visibilidad del precio final (oculto por defecto)
+  resetFinalPriceDisplay();
+
   document.getElementById('gameAccountId').value = '';
   document.getElementById('gameNickname').value = '';
   document.getElementById('gameNotes').value = '';
@@ -646,7 +716,8 @@ async function submitGameRecharge() {
   const accountId = document.getElementById('gameAccountId').value.trim();
   const nickname = document.getElementById('gameNickname').value.trim();
   const notes = document.getElementById('gameNotes').value.trim();
-  const price = getPackageDisplayPrice(selectedPackage);
+  // El monto a cobrar es el PRECIO FINAL
+  const price = getFinalPrice(selectedPackage);
 
   if (!accountId) { showToast('Ingresa el ID o código de la cuenta', 'error'); return; }
   if (accountId.length < 4) { showToast('El ID o código es muy corto', 'error'); return; }
@@ -667,13 +738,13 @@ async function submitGameRecharge() {
       || currentUser?.email
       || 'N/A';
 
-    // 1) Enviar a Telegram
+    // 1) Enviar a Telegram (solo precio final que es el que paga el usuario)
     const telegramMessage = `
 🎮 <b>NUEVA RECARGA DE JUEGO</b> 🎮
 ───────────────────
 🎯 <b>Categoría:</b> ${selectedCategory.name}
 📦 <b>Paquete:</b> ${selectedPackage.name}
-💰 <b>Precio:</b> ${formatCurrency(price)}
+💰 <b>Precio final:</b> ${formatCurrency(price)}
 🆔 <b>ID/Código:</b> <code>${accountId}</code>
 🎭 <b>Nick:</b> ${nickname || 'No especificado'}
 📝 <b>Notas:</b> ${notes || 'Sin notas adicionales'}
@@ -705,7 +776,7 @@ async function submitGameRecharge() {
       console.warn('Telegram no configurado. Omite el envío.');
     }
 
-    // 2) Registrar transacción (se descuenta final_price)
+    // 2) Registrar transacción con amount = final_price
     const description = `${selectedCategory.name} - ${selectedPackage.name} | ID: ${accountId}${nickname ? ` | Nick: ${nickname}` : ''}${notes ? ` | Notas: ${notes}` : ''}`;
     const { error: txError } = await window.supabase
       .from('transactions')
@@ -723,8 +794,8 @@ async function submitGameRecharge() {
           game_account_id: accountId,
           game_nickname: nickname || null,
           game_notes: notes || null,
-          price_reference: selectedPackage.price,      // referencia (oculto)
-          final_price_charged: price                    // precio cobrado real
+          price_reference: selectedPackage.price,
+          final_price_charged: price
         }
       }]);
 
